@@ -1,2 +1,2 @@
 # Documents
-Notes, Settings, and *configs files*
+Notes, Settings, and *configs* files
