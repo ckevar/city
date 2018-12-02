@@ -1,17 +1,17 @@
-##ifndef SENSORS_H
+#ifndef SENSORS_H
 #define SENSORS_H 
 
-typedef struct dstsens_
+typedef struct 
 {
 	
 } dstsens_t;
 
-typedef struct cam_
+typedef struct
 {
 	
 } cam_t;
 
-typedef struct gps_
+typedef struct
 {
 	
 } gps_t;
