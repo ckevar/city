@@ -1,3 +1,5 @@
+#include "sensors.h"
+
 #ifndef VEHICLE_H
 #define VEHICLE_H 
 
@@ -7,12 +9,12 @@ typedef struct vehicle_
 	double 		mass;
 	double 		friction;
 	double 		controlU;
-	distSens_t  *dsensor;
-	cam_t 		*camera;	
 	double		posXr;	 // real (or granted) position
 	double		posYr; 	// real (or granted) position
 	double		orientation;
 	double		velocity;
+	distsens_t	*dsensor;
+	cam_t 		*camera;	
 	gps_t 		*gps;
 } vehicle_t;
 
