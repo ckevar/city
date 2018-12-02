@@ -1,23 +1,26 @@
 CC := gcc
 SRCDIR := src
 BUILDDIR := build
+
+TEST := test/test.c
 TARGET := bin/city
-TESTTARGET := test/city
+TESTTARGET := bin/test_city
 
 SRC := $(shell find $(SRCDIR) -type f -name *.c)
-OBJ := $(patsubst $(SRCDIR)/%, $(BUILDDIR)/%, %(SRC:.c)=.o)
+OBJ := $(patsubst $(SRCDIR)/%, $(BUILDDIR)/%, $(SRC:.c=.o))
 CFLAGS := -Wall
 LIB := -pthread -L lib
 INC := -I include
 
 $(TARGET): $(OBJ)
-	$(CC) $^ -o $@ $(LIB)
+	$(CC) -o $@ $^ $(CFLAGS) $(LIB)
 
-$(BUILDDIR)/%.o: $(SRCDIR)%.c
-	$(CC) $(CFLAGS) $(INC) -c -o $@ $<	 
+$(BUILDDIR)/%.o: $(SRC)  
+	@mkdir -p $(BUILDDIR)
+	$(CC) $(CFLAGS) $(INC) -c -o $@ $< 
 
 clean:
-	rm -r $(BUILDDIR)/*.o $(TARGET)
+	rm -r $(BUILDDIR) $(TARGET)
 
-$(TESTTARGET): 
-	@echo $(SRC)
+test: 
+	$(CC) $(CFLAGS) $(test) $(INC) $(LIB) -o $(TESTTARGET)
