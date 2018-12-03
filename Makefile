@@ -21,6 +21,7 @@ $(BUILDDIR)/%.o: $(SRC)
 
 clean:
 	rm -r $(BUILDDIR) $(TARGET)
+
 git:
 	(git commit -a; git push)
 
