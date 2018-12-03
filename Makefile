@@ -1,29 +1,59 @@
-CC := gcc
-SRCDIR := src
-BUILDDIR := build
+CC=gcc
+# libs third party
+LIBS=-pthread 
 
-TEST := test/test.c
-TARGET := bin/city
-TESTTARGET := bin/test_city
+# Headers
+IDIR=include
+CFLAGS=-I$(IDIR)
+DEPS=$(IDIR)/*.h
 
-SRC := $(shell find $(SRCDIR) -type f -name *.c)
-OBJ := $(patsubst $(SRCDIR)/%, $(BUILDDIR)/%, $(SRC:.c=.o))
-CFLAGS := -Wall
-LIB := -pthread -L lib
-INC := -I include
+# Sources
+SDIR = src
+SRC = $(wildcard src/*.c)
 
-$(TARGET): $(OBJ)
-	$(CC) -o $@ $^ $(CFLAGS) $(LIB)
+# Objects
+BDIR = build
+OBJ=$(patsubst src/%.c, build/%.o, $(SRC))
 
-$(BUILDDIR)/%.o: $(SRC)  
-	@mkdir -p $(BUILDDIR)
-	$(CC) $(CFLAGS) $(INC) -c -o $@ $< 
+$(BDIR)/%.o: $(SDIR)/%.c $(DEPS)
+	$(CC) -c -o $@ $< $(CFLAGS) 
+
+ruler: $(OBJ)
+	$(CC) -o bin/$@ $^ $(CFLAGS) $(LIBS)
+
+testPC:  test/test.c $(SDIR)/trinity.c $(SDIR)/kalman.c
+	$(CC_PC) -o test/$@ $^ $(CFLAGS) $(LIBS_PC)
+
 
 clean:
-	rm -r $(BUILDDIR) $(TARGET)
+	rm -f $(BDIR)/*.o 
 
-git:
-	(git commit -a; git push)
+# CC := gcc
+# SRCDIR := src
+# BUILDDIR := build
 
-test: 
-	$(CC) $(CFLAGS) $(test) $(INC) $(LIB) -o $(TESTTARGET)
+# TEST := test/test.c
+# TARGET := bin/city
+# TESTTARGET := bin/test_city
+
+# SRC := $(shell find $(SRCDIR) -type f -name *.c)
+# OBJ := $(patsubst $(SRCDIR)/%, $(BUILDDIR)/%, $(SRC:.c=.o))
+# CFLAGS := -Wall
+# LIB := -pthread -L lib
+# INC := -I./include/
+
+# $(BUILDDIR)/%.o: $(SRC) $(INC) 
+# 	@mkdir -p $(BUILDDIR)
+# 	$(CC) -c -o $@ $< $(CFLAGS)    
+
+# $(TARGET): $(OBJ) 
+# 	$(CC) -o $@ $^ $(CFLAGS) $(LIB)
+
+# clean:
+# 	rm $(BUILDDIR)/*.o $(TARGET)
+
+# git:
+# 	(git commit -a; git push)
+
+# test:  
+# 	$(CC) $(CFLAGS) $(test) $(INC) $(LIB) -o $(TESTTARGET)
