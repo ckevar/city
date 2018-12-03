@@ -1,6 +1,6 @@
 CC=gcc
 # libs third party
-LIBS=-pthread 
+LIBS=-pthread `allegro‐config ‐‐libs`
 
 # Headers
 IDIR=include
