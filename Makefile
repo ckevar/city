@@ -18,13 +18,12 @@ OBJ=$(patsubst src/%.c, build/%.o, $(SRC))
 $(BDIR)/%.o: $(SDIR)/%.c $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS) 
 
-ruler: $(OBJ)
+city: $(OBJ)
 	$(CC) -o bin/$@ $^ $(CFLAGS) $(LIBS)
 
-testPC:  test/test.c $(SDIR)/trinity.c $(SDIR)/kalman.c
-	$(CC_PC) -o test/$@ $^ $(CFLAGS) $(LIBS_PC)
-
-
+git:
+	(git commit -a; git push)
+	
 clean:
 	rm -f $(BDIR)/*.o 
 
@@ -52,8 +51,6 @@ clean:
 # clean:
 # 	rm $(BUILDDIR)/*.o $(TARGET)
 
-# git:
-# 	(git commit -a; git push)
 
 # test:  
 # 	$(CC) $(CFLAGS) $(test) $(INC) $(LIB) -o $(TESTTARGET)
