@@ -5,10 +5,9 @@
 void allegro_init() {
 }
 
-int main(int argc, char const *argv[])
+int main(int argc, char const *argv[]) 
 {
 	vehicle_t myV;
-	// vehicle_t *myV1;
 	myV.color = 10;
 
 	printf("Hello World\n");

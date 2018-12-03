@@ -1,8 +1,9 @@
+#include "types.h"
+
 #ifndef SENSORS_H
 #define SENSORS_H
 
 #include "vehicle.h"
-#include "types.h"
 
 // struct dstsens_;
 // struct cam_;
