@@ -11,7 +11,7 @@ void initialize_graphics()
 
 	set_gfx_mode(GFX_AUTODETECT_WINDOWED, W, H, 0, 0);
 
-	clear_to_color(screen, 15);		//grey background
+	clear_to_color(screen, STREET_COL);
 
 	/*Initializing a simple random map*/
 	initRandomMap(STREET_W);
