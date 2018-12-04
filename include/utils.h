@@ -1,5 +1,5 @@
 #ifndef UTILS_H
-#define UTILS_H value
+#define UTILS_H
 
 /*RESOLUTION CONSTANTS*/
 #define W	1024
@@ -10,7 +10,7 @@
 #define STREET_COL	15
 #define BLOCK_COL	2
 /*STANDARD DIMENSIONS OF THE STREETS AND BLOCKS*/
-#define BLOCK_W 	40
+#define BLOCK_W 	80
 #define STREET_W 	40
 
 void initGridMap(const int street_w, const int block_w);
