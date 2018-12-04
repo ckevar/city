@@ -1,6 +1,6 @@
 CC=gcc
-# libs third party
-LIBS=-pthread `allegro-config --libs`
+# libs third party: pthread/allegro/math
+LIBS=-pthread `allegro-config --libs` -lm
 
 # Headers
 IDIR=include

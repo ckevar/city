@@ -5,11 +5,12 @@
 
 #include "vehicle.h"
 
-// struct dstsens_;
-// struct cam_;
-// struct gps_;
-
+/**** REAL-TIME TASKS ****/
 void *getFrame(vehicle_t *myVehicle);
 void *getRangefinder(vehicle_t *myVehicle);
+/************************/
 
+void analyzeCameraFrame(vehicle_t *myVehicle);
+/* analyze the camera frame
+ */
 #endif
