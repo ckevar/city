@@ -35,8 +35,8 @@ typedef struct {
 	double		mass;
 	double		friction;
 	double 		controlU;
-	double		xr;	 // real (or granted) position
-	double		yr; 	// real (or granted) position
+	double		xr;	// real (or granted) position
+	double		yr;	// real (or granted) position
 	double		orientation;
 	double		velocity;
 	dstsens_t	dsensor;

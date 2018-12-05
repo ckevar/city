@@ -1,7 +1,6 @@
 #include <allegro.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <time.h>
 #include "utils.h"
 
 /*Initializes a regular grid with specified dimensions*/
