@@ -1,8 +1,10 @@
 #include "sensors.h"
-#include "types.h"
 
 #ifndef VEHICLE_H
 #define VEHICLE_H 
+
+#define VEHICLE_LENGTH	30
+#define VEHICLE_WIDTH 	20
 
 /***** Real-Time Task *****/
 void *drive(vehicle_t *myVehicle);
@@ -12,8 +14,8 @@ void *drive(vehicle_t *myVehicle);
  */
 /**************************/
 
-void initVehicle(vehicle_t *myV);
-/* Inits vehicle position
+void initVehicle(vehicle_t *myV, const int w, const int h);
+/* Inits vehicle position, and places randomly
  */
 
 void moveVehicle(vehicle_t *myVehicle);
