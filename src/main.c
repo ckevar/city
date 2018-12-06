@@ -4,6 +4,11 @@
 #include "types.h"
 #include "vehicle.h"
 #include "utils.h"
+#include "task.h"
+
+void *dummy(){
+	printf("I am Dummy\n");
+}
 
 void initialize_graphics() 
 {
@@ -30,6 +35,12 @@ int main(int argc, char const *argv[])
 	initVehicle(&v1);
 	getFrame(&v1);
 	/**********************/
+
+	/**** Test Task *******/
+	rt_task_par_t dummy_par;
+	task_create(dummy, &dummy_par, 1, 1, 99);
+	// task_create(dummy, &dummy_par, 1, 1, 99);
+	/***********************/
 
 	while(1){}
 	

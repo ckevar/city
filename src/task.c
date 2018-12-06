@@ -1,6 +1,8 @@
 #include <time.h>
 #include <pthread.h>
 #include <stdio.h>
+#include <errno.h>
+
 #include "task.h"
 #include "timemanagement.h"
 
@@ -34,14 +36,15 @@ void wait_for_activation(rt_task_par_t * parameters){
 }
 
 /*Periodic task management*/
-void periodic_task(void* arg){
+void periodic_task(void* arg) {
 	rt_task_par_t * parameters = (rt_task_par_t *) arg;
 	struct timespec t, now;
-
+	printf("I am at periodic_task\n");
 	set_activation(parameters);
 
 	while (1) {
-		(*(parameters->function))();
+		// (*(parameters->function))();
+		parameters->function();
 		if(deadline_miss(parameters)){
 			//do something
 		}
@@ -58,15 +61,15 @@ int task_create(void* fun, rt_task_par_t* par, int period, int deadline, int pri
 
 	if(priority>99){
 		priority = 99;
-		printf("Cannot assign a priority higher than 99, assigning 99 to the task priority\n");
+		fprintf(stderr, "Cannot assign a priority higher than 99, assigning 99 to the task priority \n");
 	}
 
 	/*setting up the parameters of the task from input*/
-	par-> period 	=	period;
-	par-> deadline 	=	deadline;
-	par-> priority 	=	priority;
-	par-> dmiss 	=	0;
-	par-> function 	=	fun;
+	par->dmiss 		=	0;
+	par->function 	=	fun;
+	par->period 	=	period;
+	par->deadline 	=	deadline;
+	par->priority 	=	priority;
 
 	pthread_attr_init(&myattr);
 
@@ -78,12 +81,16 @@ int task_create(void* fun, rt_task_par_t* par, int period, int deadline, int pri
 
 	mypar.sched_priority = par->priority;
 	/*setting thread priority*/
-	pthread_attr_setschedparam(&myattr,&mypar);		
-
-	tret = pthread_create(&(par->tid), &myattr, (void *) &periodic_task, NULL);
-	if(tret){
-		printf("Error while creating a new task!");
+	int errs = pthread_attr_setschedparam(&myattr,&mypar);		
+	if (errs != 0) {
+		fprintf(stderr, "You just fucked up!\n");
 	}
+	printf("I am at task_create\n");
+
+	// tret = pthread_create(&(par->tid), &myattr, periodic_task, par);
+	tret = pthread_create(&(par->tid), &myattr, (void *) &periodic_task, par);
+	if(tret)
+		fprintf(stderr, "Error while creating a new task! %d\n", tret);
 
 	return tret;
 }
