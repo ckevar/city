@@ -6,11 +6,11 @@
 #include "utils.h"
 #include "task.h"
 
-void *dummy(){
-	printf("I am Dummy\n");
+void *dummy(int x){
+	printf("I am Dummy %d\n", x);
 }
 
-void initialize_graphics() 
+void initialize_graphics()
 {
 	set_color_depth(N_COL);
 
@@ -43,7 +43,7 @@ int main(int argc, char const *argv[])
 	/***********************/
 
 	while(1){}
-	
+
 	allegro_exit();
 
 	return 0;

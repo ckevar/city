@@ -39,12 +39,11 @@ void wait_for_activation(rt_task_par_t * parameters){
 void periodic_task(void* arg) {
 	rt_task_par_t * parameters = (rt_task_par_t *) arg;
 	struct timespec t, now;
-	printf("I am at periodic_task\n");
 	set_activation(parameters);
 
 	while (1) {
 		// (*(parameters->function))();
-		parameters->function();
+		parameters->function(4);
 		if(deadline_miss(parameters)){
 			//do something
 		}
@@ -81,13 +80,8 @@ int task_create(void* fun, rt_task_par_t* par, int period, int deadline, int pri
 
 	mypar.sched_priority = par->priority;
 	/*setting thread priority*/
-	int errs = pthread_attr_setschedparam(&myattr,&mypar);		
-	if (errs != 0) {
-		fprintf(stderr, "You just fucked up!\n");
-	}
-	printf("I am at task_create\n");
+	pthread_attr_setschedparam(&myattr,&mypar);
 
-	// tret = pthread_create(&(par->tid), &myattr, periodic_task, par);
 	tret = pthread_create(&(par->tid), &myattr, (void *) &periodic_task, par);
 	if(tret)
 		fprintf(stderr, "Error while creating a new task! %d\n", tret);
