@@ -16,9 +16,11 @@ BDIR = build
 OBJ=$(patsubst src/%.c, build/%.o, $(SRC))
 
 $(BDIR)/%.o: $(SDIR)/%.c $(DEPS)
+	@mkdir -p $(BDIR)
 	$(CC) -c -o $@ $< $(CFLAGS) 
 
 city: $(OBJ)
+	@mkdir -p bin/
 	$(CC) -o bin/$@ $^ $(CFLAGS) $(LIBS)
 
 git:
