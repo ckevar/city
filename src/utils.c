@@ -1,6 +1,7 @@
 #include <allegro.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <time.h>
 #include "utils.h"
 
 /*Initializes a regular grid with specified dimensions*/
@@ -32,6 +33,8 @@ void initRandomMap(const int street_w){
 
 	int someCoeff = BLOCK_W + street_w;
 	int random_factor;
+	int a, b;
+
 	srand (time(NULL));
 
 	n_blocks_x = (W - street_w) / (BLOCK_W + street_w);
@@ -42,24 +45,19 @@ void initRandomMap(const int street_w){
 
 			random_factor = rand() % 100;
 
-			if(random_factor >= 50 || (i == n_blocks_x - 1) || (j == n_blocks_y - 1)){
-				rectfill(screen, (i * someCoeff) + street_w, 
-								(j * someCoeff) + street_w, 
-								(i * someCoeff) + BLOCK_W + street_w, 
-								(j * someCoeff) + BLOCK_W + street_w, BLOCK_COL);
+			if(random_factor >= 50 || (i == n_blocks_x - 1) || (j == n_blocks_y - 1)) {
+				a = 1; b = 1;
 			}
 			else if(random_factor >= 25){
-				rectfill(screen, (i * someCoeff) + street_w, 
-								(j * someCoeff) + street_w, 
-								(i * someCoeff) + BLOCK_W + 2*street_w, 
-								(j * someCoeff) + BLOCK_W + street_w, BLOCK_COL);
+				a = 2; b = 1;
 			}
 			else{
-				rectfill(screen, (i * someCoeff) + street_w, 
-								(j * someCoeff) + street_w, 
-								(i * someCoeff) + BLOCK_W + street_w, 
-								(j * someCoeff) + BLOCK_W + 2*street_w, BLOCK_COL);
+				a = 1; b = 2;
 			}
+			rectfill(screen, (i * someCoeff) + street_w, 
+							 (j * someCoeff) + street_w, 
+							 (i * someCoeff) + BLOCK_W + a * street_w, 
+							 (j * someCoeff) + BLOCK_W + b * street_w, BLOCK_COL);
 			/*
 			else{
 				rectfill(screen, (i * someCoeff) + street_w, 
@@ -71,4 +69,5 @@ void initRandomMap(const int street_w){
 		}
 	}
 }
+
 
