@@ -30,9 +30,9 @@ int main(int argc, char const *argv[])
 
 	initialize_graphics();
 
-	/**** Testing Cam *****/
+	/**** Testing Vehicle *****/
 	vehicle_t v1;
-	initVehicle(&v1);
+	initVehicle(&v1, W, H);
 	getFrame(&v1);
 	/**********************/
 
