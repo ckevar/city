@@ -1,65 +1,28 @@
-#include <allegro.h>
-#include <math.h>
-#include "sensors.h"
 #include "types.h"
 
-void initCam(cam_t *myCam) {
-	myCam->resH = HRES;
-	myCam->resV = VRES;
-}
+#ifndef SENSORS_H
+#define SENSORS_H
 
-void *getFrame(vehicle_t *myVehicle) {
-/* provides periodically frames acquired by camera: 33 ms
- * code:
- */	
-	// Camera global position
-	unsigned x0 = myVehicle->camera.x;
-	unsigned y0 = myVehicle->camera.y;
-	
-	// Camera res a local variable
-	unsigned hRes = myVehicle->camera.resH; 
-	unsigned vRes = myVehicle->camera.resV;
+#include "vehicle.h"
 
-	// Taking picture
-	unsigned i, j;
-	unsigned x, y;
-	for (i = 0; i < hRes; ++i) {
-		for(j = 0; j < vRes; j++) {
-			x = x0 - hRes/2 + i;
-			y = y0 - vRes/2 + j;
-			myVehicle->camera.image[i][j] = getpixel(screen, x, y);
-		}
-	}
-
-}
-
+/** RANGEFINDER FEATURES **/
 #define SMIN 10
 #define SMAX 100
 #define STEP 1
 
-void *getRangefinder(vehicle_t *myVehicle) {
-/* function to provide periodically informations acquired 
- * by the distance sensor. Period: 20 ms
- * code: 
- */
-	int c;
-	int x, y;
-	int d = SMIN;
-	int x0 = myVehicle->xr;
-	int y0 = myVehicle->yr;
+/** CAMERA FEATURES **/
+#define HRES 16
+#define VRES 9
 
-	double alpha = myVehicle->orientation;
-	
-	do {
-		x = x0 + d * cos(alpha);
-		y = y0 + d * cos(alpha);
-		c = getpixel(screen, x, y);
-		d = d + STEP;
-	} while ((d <= SMAX) && (c == 8));
-}
 
-void  analyzeCameraFrame(vehicle_t *myVehicle) {
-/* Analyzes the camera frame looking for a traffic light
- * code:
+void initCam(cam_t *myCam, const int x, const int y);
+
+/**** REAL-TIME TASKS ****/
+void *getFrame(vehicle_t *myVehicle);
+void *getRangefinder(vehicle_t *myVehicle);
+/************************/
+
+void analyzeCameraFrame(vehicle_t *myVehicle);
+/* analyze the camera frame
  */
-}
+#endif
