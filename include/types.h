@@ -32,13 +32,16 @@ typedef struct
 
 typedef struct {
 	int			color;
+	int			xr;	 	// real (or granted) position
+	int			yr; 	// real (or granted) position
+	int 		width;
+	int			height;
 	double		mass;
 	double		friction;
 	double 		controlU;
-	double		xr;	// real (or granted) position
-	double		yr;	// real (or granted) position
 	double		orientation;
 	double		velocity;
+	int 		point[8];
 	dstsens_t	dsensor;
 	cam_t 		camera;	
 	gps_t 		gps;
