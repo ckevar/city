@@ -11,17 +11,19 @@ typedef enum tlState_ {RED_LIGHT, ORANGE_LIGHT, GREEN_LIGHT} tlState_t;
 typedef struct  
 {
 	char	visible;
-	int		x;		// x pixel position
-	int 	y;		// y pixel position
-	double 	distances[NUM_BEAMS];
+	int		x[NUM_BEAMS];		// x pixel position
+	int 	y[NUM_BEAMS];		// y pixel position
+	int 	stp;				// Step of the sensor
+	double 	phi[NUM_BEAMS];		// angle orientation
+	double 	dsts[NUM_BEAMS];	// distances measure
 } dstsens_t;
 
 typedef struct 
 {
-	unsigned	resH;
-	unsigned	resV;
-	unsigned	x;		// x position
-	unsigned	y;		// y position
+	unsigned	resH;				// Horizontal Resolution
+	unsigned	resV;				// Vertical Resolution
+	unsigned	x;					// x position
+	unsigned	y;					// y position
 	unsigned 	image[HRES][VRES];	// image
 } cam_t;
 
@@ -49,8 +51,8 @@ typedef struct {
 	double		vel;		// Current Velocity
 	double		v_1;		// Previous Velocity
 	int 		point[8];	// Corners of the vehicle to be draw
-	dstsens_t	dsensor;	// distance sensor mounted on the vehicle
-	cam_t 		camera;		// camera mounted on the vehicle
+	dstsens_t	ds;			// distance sensor mounted on the vehicle
+	cam_t 		cam;		// camera mounted on the vehicle
 	gps_t 		gps;		// gps mounted on the vehicle
 	pidk_t		K;			// cruice controller 
 } vehicle_t;

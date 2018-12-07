@@ -62,8 +62,9 @@ void moveVehicle(vehicle_t *c) {
 		 */
 		c->vel = (T / (c->m + c->b * T) ) * c->u + (c->m / (c->m + c->b * T)) * c->v_1;
 		deltax +=  c->vel * T;				// distance covered by c->vel;
-		c->xr += deltax * cos(c->theta);	// New position
-		c->yr += deltax * sin(c->theta);	// New position
+		c->xr += deltax * cos(c->theta);	// New position over x
+		c->yr += deltax * sin(c->theta);	// New position over y
+
 		printf("vel %f\n", c->vel);
 		rotatePoints(c);							// compute new points to plot
 		polygon(screen, 4, c->point, c->color);	// Draw new position
@@ -169,7 +170,7 @@ void initVehicle(vehicle_t *myV, const int w, const int h) {
 			 */
 			theta = 3;
 			myV->theta += M_PI; 		// 180 deg
-			myV->xr += w - 2.5 * STREET_W - STREET_W;
+			myV->xr += w - 3.1 * STREET_W - STREET_W;
 			/*					|________ where counting from bottom
 			 */
 		}
@@ -185,7 +186,7 @@ void initVehicle(vehicle_t *myV, const int w, const int h) {
 	rotatePoints(myV);
 
 	placeCarInStreet(myV, theta);
-	initCam(&myV->camera, myV->xr, myV->yr);
+	initCam(&myV->cam, myV->xr, myV->yr);
 	rotatePoints(myV);
 	polygon(screen, 4, myV->point, myV->color);
 	// polygon(screen, 4, myV->point, color);

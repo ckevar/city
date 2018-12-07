@@ -13,17 +13,32 @@ void initCam(cam_t *myCam, const int x, const int y) {
 	myCam->resV = VRES;
 }
 
+void place4BeamsRangefinderOnVehicle(vehicle_t *c) {
+	/* Place 4 rangefinders in each corner of the vehicle
+	 * 45 degrees 
+	 */
+	double phiRel = 3.0 * M_PI / 4.0;
+	int i;
+
+	for (i = 0; i < 4; ++i) {
+		c->ds.x[i] = c->point[2 * i];
+		c->ds.y[i] = c->point[2 * i + 1];
+		c->ds.phi[i] += phiRel;
+		phiRel += M_PI / 4.0;
+	}
+}
+
 void *getFrame(vehicle_t *myVehicle) {
 /* provides periodically frames acquired by camera: 33 ms
  * code:
  */	
 	// Camera global position
-	unsigned x0 = myVehicle->camera.x;
-	unsigned y0 = myVehicle->camera.y;
+	unsigned x0 = myVehicle->cam.x;
+	unsigned y0 = myVehicle->cam.y;
 	
 	// Camera res a local variable
-	unsigned hRes = myVehicle->camera.resH; 
-	unsigned vRes = myVehicle->camera.resV;
+	unsigned hRes = myVehicle->cam.resH; 
+	unsigned vRes = myVehicle->cam.resV;
 
 	// Taking picture
 	unsigned i, j;
@@ -32,7 +47,7 @@ void *getFrame(vehicle_t *myVehicle) {
 		for(j = 0; j < vRes; j++) {
 			x = x0 - hRes/2 + i;
 			y = y0 - vRes/2 + j;
-			myVehicle->camera.image[i][j] = getpixel(screen, x, y);
+			myVehicle->cam.image[i][j] = getpixel(screen, x, y);
 		}
 	}
 
@@ -49,7 +64,6 @@ void *getRangefinder(vehicle_t *myVehicle) {
 	int d = SMIN;
 	int x0 = myVehicle->xr;
 	int y0 = myVehicle->yr;
-
 	double alpha = myVehicle->theta;
 	
 	do {
