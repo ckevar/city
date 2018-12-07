@@ -17,29 +17,36 @@ void rotatePoints(vehicle_t *myV) {
 	double cost = cos(myV->theta);
 	double sint = sin(myV->theta);
 
-	myV->point[0] = (-myV->l / 2) * cost - 
-			   (-myV->w / 2) * sint + myV->xr;
+	myV->point[0] = (myV->l / 2) * cost - 
+					(myV->w / 2) * sint + myV->xr;
+	myV->point[1] = (myV->l / 2) * sint + 
+					(myV->w / 2) * cost + myV->yr;
 
-	myV->point[1] = (-myV->l / 2) * sint + 
-			   (-myV->w / 2) * cost + myV->yr;
+	myV->point[2] = (-myV->l / 2) * cost - 
+					(myV->w / 2) * sint + myV->xr;
+	myV->point[3] = (-myV->l / 2) * sint + 
+					(myV->w / 2) * cost + myV->yr;
 
-	myV->point[2] = (myV->l / 2) * cost - 
-			   (-myV->w / 2) * sint + myV->xr;
+	myV->point[4] = (-myV->l / 2) * cost - 
+					(-myV->w / 2) * sint + myV->xr;
+	myV->point[5] = (-myV->l / 2) * sint + 
+					(-myV->w / 2) * cost + myV->yr;
 
-	myV->point[3] = (myV->l / 2) * sint + 
-			   (-myV->w / 2) * cost + myV->yr;
+	myV->point[6] = (myV->l / 2) * cost - 
+					(-myV->w / 2) * sint + myV->xr;
+	myV->point[7] = (myV->l / 2) * sint + 
+					(-myV->w / 2) * cost + myV->yr;
 
-	myV->point[4] = (myV->l / 2) * cost - 
-			   (myV->w / 2) * sint + myV->xr;
+}
 
-	myV->point[5] = (myV->l / 2) * sint + 
-			   (myV->w / 2) * cost + myV->yr;
-
-	myV->point[6] = (-myV->l / 2) * cost - 
-			   (myV->w / 2) * sint + myV->xr;
-
-	myV->point[7] = (-myV->l / 2) * sint + 
-			   (myV->w / 2) * cost + myV->yr;
+void translateVehiclePoints(vehicle_t *c) {
+	/***************************/
+	/**** WORKING ON THIS ******/
+	int i;
+	for (i = 0; i < 4; ++i) {
+		c->point[2 * i] += c->xr;
+		c->point[2 * i + 1] += c->yr;
+	}
 }
 
 void moveVehicle(vehicle_t *c) {
@@ -48,7 +55,7 @@ void moveVehicle(vehicle_t *c) {
 	double Vref = 0.4;	// Velocity set Point (could be random per each car)
 	double e;			// Error betwee Set Point and and Output 
 	double Ie = 0;		// Integrating the error
-
+	c->v_1 = 0;			// Initializing previous speed
 	while(1) {
 		polygon(screen, 4, c->point, STREET_COL);	// Delete previous position
 		/** PI controller **/
@@ -66,10 +73,10 @@ void moveVehicle(vehicle_t *c) {
 		c->yr += deltax * sin(c->theta);	// New position over y
 
 		printf("vel %f\n", c->vel);
-		rotatePoints(c);							// compute new points to plot
+		rotatePoints(c);					// compute new points to plot
 		polygon(screen, 4, c->point, c->color);	// Draw new position
 		c->v_1 = c->vel;
-		sleep(1);
+		sleep(1);							// Will be removed
 	}
 }
 
@@ -85,7 +92,8 @@ char isAvailableThisColor(int color) {
 void auxMoveY(vehicle_t * myV, const int i, const int sgn) {
 	do {
 		myV->yr = myV->yr + sgn;
-		rotatePoints(myV);
+		// translateVehiclePoints(myV);
+		rotatePoints(myV);	// only translation is needed
 	} while(getpixel(screen, myV->point[2 * i], myV->point[2 * i + 1]) != STREET_COL);
 	myV->yr = myV->yr + sgn * 10;
 }
@@ -93,7 +101,8 @@ void auxMoveY(vehicle_t * myV, const int i, const int sgn) {
 void auxMoveX(vehicle_t * myV, const int i, const int sgn) {
 	do {
 		myV->xr = myV->xr + sgn;
-		rotatePoints(myV);
+		// translateVehiclePoints(myV);
+		rotatePoints(myV);	// only translation is needed
 	} while(getpixel(screen, myV->point[2 * i], myV->point[2 * i + 1]) != STREET_COL);
 	myV->xr = myV->xr + sgn * 10;
 }
@@ -102,17 +111,18 @@ void placeCarInStreet(vehicle_t *myV, const int axis) {
 	int i;
 	for (i = 0; i < 4; ++i) {
 		if (getpixel(screen, myV->point[2 * i], myV->point[2 * i + 1]) != STREET_COL) {
-
-			if (i == 1) {
-				if ((axis == 0) || (axis == 1)) auxMoveX(myV, i, -1);
-				if (axis == 2) auxMoveY(myV, i, -1);
-				if (axis == 3) auxMoveY(myV, i, 1);
 			
-			} else if (i == 2) {
+			if (i == 0) {
 				if (axis == 0) auxMoveX(myV, i, 1);
 				if (axis == 1) auxMoveX(myV, i, -1);
 				if (axis == 2) auxMoveY(myV, i, -1);
 				if (axis == 3) auxMoveY(myV, i, 1);
+			
+			} else if (i == 3) {
+				if (axis == 0) auxMoveX(myV, i, -1);
+				if (axis == 1) auxMoveX(myV, i, 1);
+				if (axis == 2) auxMoveY(myV, i, 1);
+				if (axis == 3) auxMoveY(myV, i, -1);
 
 			}
 		}
@@ -127,10 +137,13 @@ void initVehicle(vehicle_t *myV, const int w, const int h) {
 	int theta;						/* Reference initial, orientation, 0: 90deg, 
 									   1: 270deg, 2: 0deg, 3: 180deg
 									 */
+	int nb;							// Number of blocks per axis
+	int blkLen = BLOCK_W + STREET_W;// length of a block (+ street width)
 	int XorY = rand() % 2;			// it shall generate the car over x or y axis
 	int ULorBR = rand() % 2;		/* it shall generate the car Upper or Buttom or
 									 * Left or Right
 									 */
+
 	/*** Car features ***/
 	myV->l = VEHICLE_LENGTH;	// Length of the vehicle
 	myV->w = VEHICLE_WIDTH;		// Width of vehicle
@@ -140,55 +153,67 @@ void initVehicle(vehicle_t *myV, const int w, const int h) {
 	myV->K.Ki = PID_KI;			//	Integral gain
 	/********************/
 
+
+	// GENERATE RANDOM POSITION
 	if (XorY) {
-		/* Along X axis and (by default)
+		/* Along X axis and (by default) Top Screen
 		 */
-		myV->yr = STREET_W;
-		myV->theta = M_PI / 2.0; 		// 90 deg
-		theta = 0;						
+		myV->yr = STREET_W;						// Initial position along y axis
+		myV->theta = M_PI / 2.0; 				// 90 deg
+		theta = 0;								// Flag representeng 90 deg
 
 		if (!ULorBR) {
+			/* Bottom Side of screen
+			 */
 			theta = 1;
-			myV->theta += M_PI;			// 270 	deg
-			myV->yr += h - 3 * STREET_W - STREET_W;
+			nb = (h - STREET_W) / blkLen;		// Number of blocks along y axis
+			myV->theta += M_PI;					// 270 	deg
+			myV->yr += nb * blkLen - STREET_W;
 			/*					|________ where counting from bottom
 			 */
 		}
-
-		do { myV->xr = STREET_W + rand()%(w - 2 * STREET_W);
+		nb = (w - STREET_W) / blkLen;			// Number of blocks along y axis
+		do { myV->xr = STREET_W + rand()%(nb * blkLen);	/* Random position between first corner
+														 * up to rightest corner of the rightest block
+														 */
 		} while(getpixel(screen, myV->xr, myV->yr) != STREET_COL);
 
 	} else {
 		/* Along Y axis and (by default) left screen 
 		 */
-		myV->xr = STREET_W;
-		myV->theta = 0.0;				// 0 deg
-		theta = 2;
+		myV->xr = STREET_W;						// Initial position along x axis
+		myV->theta = 0.0;						// 0 deg
+		theta = 2;								// Flag representing 0 deg
 
 		if (!ULorBR) {
 			/* Right Side of Screen
 			 */
 			theta = 3;
-			myV->theta += M_PI; 		// 180 deg
-			myV->xr += w - 3.1 * STREET_W - STREET_W;
+			nb = (w - STREET_W) / blkLen;		// Number of blocks along x axis
+			myV->theta += M_PI; 				// 180 deg
+			myV->xr += nb * blkLen - STREET_W;	// Rightest corner of the rightest block
 			/*					|________ where counting from bottom
 			 */
 		}
 
-		do { myV->yr = STREET_W + rand()%(h - 2 * STREET_W);
+		nb = (h - STREET_W) / blkLen;			// Number of blocks along y axis
+
+		do { myV->yr = STREET_W + rand()%(nb * blkLen); 	/* Random position between
+															 * first corner til last corner
+															 */
 		} while(getpixel(screen, myV->xr, myV->yr) != STREET_COL);
 	}
 
+	// Random color but available color
 	do {
 		myV->color = rand()%MAX_KNOWN_ENCODED_COLORS;
 	} while(!isAvailableThisColor(myV->color));
 
+	// Rotate the points to plot
 	rotatePoints(myV);
 
 	placeCarInStreet(myV, theta);
 	initCam(&myV->cam, myV->xr, myV->yr);
-	rotatePoints(myV);
+	rotatePoints(myV); // Re-rotating the points according new position
 	polygon(screen, 4, myV->point, myV->color);
-	// polygon(screen, 4, myV->point, color);
-
 }

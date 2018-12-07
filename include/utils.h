@@ -2,8 +2,8 @@
 #define UTILS_H
 
 /*RESOLUTION CONSTANTS*/
-#define W	1920
-#define H	1080
+#define W	1024
+#define H	720
 
 /*BITS FOR COLORS*/
 #define N_COL	8
@@ -17,7 +17,7 @@
 
 /*STANDARD DIMENSIONS OF THE STREETS AND BLOCKS*/
 #define BLOCK_W 	100
-#define STREET_W 	30
+#define STREET_W 	40
 
 void initGridMap(const int street_w, const int block_w);
 /* Inits grid map
