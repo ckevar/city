@@ -6,7 +6,11 @@
 #include "utils.h"
 #include "task.h"
 
-void *dummy(int x){
+void *dummy(void* arg){
+	int* p;
+	p = (int*) arg;
+	int x;
+	x = *p;
 	printf("I am Dummy %d\n", x);
 }
 
@@ -39,7 +43,9 @@ int main(int argc, char const *argv[])
 
 	/**** Test Task *******/
 	rt_task_par_t dummy_par;
-	task_create(dummy, &dummy_par, 1, 1, 99);
+	int i;
+	i = 1;
+	task_create(dummy, &i, &dummy_par, 1, 1, 99);
 	// task_create(dummy, &dummy_par, 1, 1, 99);
 	/***********************/
 

@@ -43,7 +43,7 @@ void periodic_task(void* arg) {
 
 	while (1) {
 		// (*(parameters->function))();
-		parameters->function(4);
+		parameters->function(parameters->arg);
 		if(deadline_miss(parameters)){
 			//do something
 		}
@@ -52,7 +52,7 @@ void periodic_task(void* arg) {
 }
 
 /*Creates a task executing the function fun*/
-int task_create(void* fun, rt_task_par_t* par, int period, int deadline, int priority){
+int task_create(void* fun, void* arg, rt_task_par_t* par, int period, int deadline, int priority){
 
 	pthread_attr_t myattr;
 	struct sched_param mypar;
@@ -66,6 +66,7 @@ int task_create(void* fun, rt_task_par_t* par, int period, int deadline, int pri
 	/*setting up the parameters of the task from input*/
 	par->dmiss 		=	0;
 	par->function 	=	fun;
+	par->arg		=	arg;
 	par->period 	=	period;
 	par->deadline 	=	deadline;
 	par->priority 	=	priority;
