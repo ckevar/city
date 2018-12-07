@@ -50,7 +50,7 @@ void *getRangefinder(vehicle_t *myVehicle) {
 	int x0 = myVehicle->xr;
 	int y0 = myVehicle->yr;
 
-	double alpha = myVehicle->orientation;
+	double alpha = myVehicle->theta;
 	
 	do {
 		x = x0 + d * cos(alpha);

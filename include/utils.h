@@ -17,7 +17,7 @@
 
 /*STANDARD DIMENSIONS OF THE STREETS AND BLOCKS*/
 #define BLOCK_W 	100
-#define STREET_W 	60
+#define STREET_W 	30
 
 void initGridMap(const int street_w, const int block_w);
 /* Inits grid map

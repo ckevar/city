@@ -33,6 +33,7 @@ int main(int argc, char const *argv[])
 	/**** Testing Vehicle *****/
 	vehicle_t v1;
 	initVehicle(&v1, W, H);
+	moveVehicle(&v1);
 	getFrame(&v1);
 	/**********************/
 

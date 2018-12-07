@@ -3,8 +3,19 @@
 #ifndef VEHICLE_H
 #define VEHICLE_H 
 
-#define VEHICLE_LENGTH	30
-#define VEHICLE_WIDTH 	20
+// VEHICLE DIMENSIONS
+#define VEHICLE_LENGTH	20
+#define VEHICLE_WIDTH 	12
+
+// VEHICLE BOUND FEATURES
+#define MIN_MASS_CAR		990
+#define MAX_MASS_CAR		2000
+#define MIN_FRICTION_CAR	40
+#define MAX_FRICTION_CAR	60
+
+// CONTROLLER PARAMETERS
+#define  PID_KP 800.0;
+#define  PID_KI 100.0;
 
 /***** Real-Time Task *****/
 void *drive(vehicle_t *myVehicle);
@@ -19,8 +30,9 @@ void initVehicle(vehicle_t *myV, const int w, const int h);
  */
 
 void moveVehicle(vehicle_t *myVehicle);
-/*  
+/*  moves the car, for testing purposes
  */
+
 void brakeVehicle(vehicle_t *myVehicle);
 /* 
  */
