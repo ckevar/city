@@ -38,7 +38,7 @@ int main(int argc, char const *argv[])
 
 	initialize_graphics();
 
-	/**** Testing Vehicle *****/
+	/**** Testing Task/Vehicle *****/
 	// for (int i = 0; i < 2; ++i) {
 		vehicle_t myCar;
 		rt_task_par_t vehicle_prm;
@@ -58,14 +58,6 @@ int main(int argc, char const *argv[])
 
 	// }
 	/**********************/
-
-	/**** Test Task *******/
-	rt_task_par_t dummy_par;
-	int i;
-	i = 1;
-	// task_create(NULL, dummy, &i, &dummy_par, 1000, 1000, 1);
-	// task_create(dummy, &dummy_par, 1, 1, 99);
-	/***********************/
 
 	while(1){}
 
