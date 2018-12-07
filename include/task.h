@@ -20,6 +20,7 @@ typedef struct {
 } rt_task_par_t;
 
 /*	Creates a task executing the function fun
+*	With period expressed in milliseconds
 *	Returns 0 on success, error code otherwise
 */
 int task_create(void* fun, void* arg, rt_task_par_t* par, int period, int deadline, int priority);
