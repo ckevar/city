@@ -32,7 +32,7 @@ typedef struct
 	
 } gps_t;
 
-typedef struct {	
+typedef struct {
 	double Kp;		// Proportional Gain
 	double Ki;		// Integral Gain
 	double Kd;		// Derivative Gain
@@ -50,6 +50,11 @@ typedef struct {
 	double		theta;		// Angle Orientation
 	double		vel;		// Current Velocity
 	double		v_1;		// Previous Velocity
+	double		Vr;			// Reference Speed
+	double 		e;			// error	
+	double		dx;			// delta distance
+	double 		T;			// Period
+	double 		Ie;			// Integral Error
 	int 		point[8];	// Corners of the vehicle to be draw
 	dstsens_t	ds;			// distance sensor mounted on the vehicle
 	cam_t 		cam;		// camera mounted on the vehicle

@@ -18,18 +18,18 @@
 #define  PID_KI 100.0;
 
 /***** Real-Time Task *****/
-void *drive(vehicle_t *myVehicle);
+void *vehicle(void *myVehi);
 /* drives the car, do the planning
  * based on distance sensor information and raw camera info.  
  * Period: 20 ms
  */
 /**************************/
 
-void initVehicle(vehicle_t *myV, const int w, const int h);
+void *initVehicle(void *c);
 /* Inits vehicle position, and places randomly
  */
 
-void moveVehicle(vehicle_t *myVehicle);
+void *moveVehicle(void *myV);
 /*  moves the car, for testing purposes
  */
 

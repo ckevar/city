@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <allegro.h>
 #include <math.h>
+#include <pthread.h>
 #include "vehicle.h"
 #include "types.h"
 #include "utils.h"
@@ -8,7 +9,13 @@
 #include <stdio.h>
 #include <unistd.h>
 
-void *drive(vehicle_t *myVehi) {
+pthread_mutex_t screen_lock;
+
+void *vehicle(void *myVehi) {
+	// vehicle_t v1;
+	// initVehicle(&v1);
+	// moveVehicle(&v1);
+	// getFrame(&v1);
 }
 
 
@@ -36,7 +43,6 @@ void rotatePoints(vehicle_t *myV) {
 					(-myV->w / 2) * sint + myV->xr;
 	myV->point[7] = (myV->l / 2) * sint + 
 					(-myV->w / 2) * cost + myV->yr;
-
 }
 
 void translateVehiclePoints(vehicle_t *c) {
@@ -49,35 +55,33 @@ void translateVehiclePoints(vehicle_t *c) {
 	}
 }
 
-void moveVehicle(vehicle_t *c) {
-	double deltax;		// how much the car was moved
-	double T = 1;		// Period
-	double Vref = 0.4;	// Velocity set Point (could be random per each car)
-	double e;			// Error betwee Set Point and and Output 
-	double Ie = 0;		// Integrating the error
-	c->v_1 = 0;			// Initializing previous speed
-	while(1) {
-		polygon(screen, 4, c->point, STREET_COL);	// Delete previous position
-		/** PI controller **/
-		e = Vref - c->v_1;					// Computes the error
-		Ie += e; 							// Integrates the error
-		c->u = c->K.Kp * e + c->K.Ki * Ie;	// computes the control output
+void *moveVehicle(void *myV) {
+	vehicle_t *c = (vehicle_t *) myV;
+	pthread_mutex_lock(&screen_lock);
+	polygon(screen, 4, c->point, STREET_COL);	// Delete previous position
+	pthread_mutex_unlock(&screen_lock);
 
-		/* Dynamic model
-		 * Vk = (T / (m + bT)) * F + (m / (m + bT))*Vk-1
-		 * Xk = Xk-1 + Vk*T
-		 */
-		c->vel = (T / (c->m + c->b * T) ) * c->u + (c->m / (c->m + c->b * T)) * c->v_1;
-		deltax +=  c->vel * T;				// distance covered by c->vel;
-		c->xr += deltax * cos(c->theta);	// New position over x
-		c->yr += deltax * sin(c->theta);	// New position over y
+	/** PI controller **/
+	c->e = c->Vr - c->v_1;					// Computes the error
+	c->Ie += c->e; 								// Integrates the error
+	c->u = c->K.Kp * c->e + c->K.Ki * c->Ie;	// computes the control output
 
-		printf("vel %f\n", c->vel);
-		rotatePoints(c);					// compute new points to plot
-		polygon(screen, 4, c->point, c->color);	// Draw new position
-		c->v_1 = c->vel;
-		sleep(1);							// Will be removed
-	}
+	/* Dynamic model
+	 * Vk = (T / (m + bT)) * F + (m / (m + bT))*Vk-1
+	 * Xk = Xk-1 + Vk*T
+	 */
+	// printf("at moveVehicle %f\n", c->T);
+	c->vel = (c->T / (c->m + c->b * c->T) ) * c->u + (c->m / (c->m + c->b * c->T)) * c->v_1;
+	c->dx +=  c->vel * c->T;		// distance covered by c->vel;
+	c->xr += c->dx * cos(c->theta);	// New position over x
+	c->yr += c->dx * sin(c->theta);	// New position over y
+
+	// printf("vel %f\n", c->vel);
+	rotatePoints(c);					// compute new points to plot
+	pthread_mutex_lock(&screen_lock);
+	polygon(screen, 4, c->point, c->color);	// Draw new position
+	pthread_mutex_unlock(&screen_lock);
+	c->v_1 = c->vel;
 }
 
 char isAvailableThisColor(int color) {
@@ -90,20 +94,25 @@ char isAvailableThisColor(int color) {
 }
 
 void auxMoveY(vehicle_t * myV, const int i, const int sgn) {
+	// pthread_mutex_lock(&screen_lock);
 	do {
 		myV->yr = myV->yr + sgn;
 		// translateVehiclePoints(myV);
 		rotatePoints(myV);	// only translation is needed
 	} while(getpixel(screen, myV->point[2 * i], myV->point[2 * i + 1]) != STREET_COL);
+	// pthread_mutex_unlock(&screen_lock);
+
 	myV->yr = myV->yr + sgn * 10;
 }
 
 void auxMoveX(vehicle_t * myV, const int i, const int sgn) {
+	// pthread_mutex_lock(&screen_lock);
 	do {
 		myV->xr = myV->xr + sgn;
 		// translateVehiclePoints(myV);
 		rotatePoints(myV);	// only translation is needed
 	} while(getpixel(screen, myV->point[2 * i], myV->point[2 * i + 1]) != STREET_COL);
+
 	myV->xr = myV->xr + sgn * 10;
 }
 
@@ -129,11 +138,11 @@ void placeCarInStreet(vehicle_t *myV, const int axis) {
 	}
 }
 
-void initVehicle(vehicle_t *myV, const int w, const int h) {
+void *initVehicle(void *c) {
 	/* inits vehicle variables
 	 * code:
 	 */
-
+	vehicle_t * myV = (vehicle_t *) c;
 	int theta;						/* Reference initial, orientation, 0: 90deg, 
 									   1: 270deg, 2: 0deg, 3: 180deg
 									 */
@@ -151,6 +160,12 @@ void initVehicle(vehicle_t *myV, const int w, const int h) {
 	myV->b = MIN_FRICTION_CAR + rand() % (MAX_FRICTION_CAR - MIN_FRICTION_CAR);
 	myV->K.Kp = PID_KP;			//	Proportional Gain
 	myV->K.Ki = PID_KI;			//	Integral gain
+
+	myV->dx = 0.0;
+	myV->Vr = 0.4;				// Velocity set Point (could be random per each car)
+	myV->T = 0.2;				// Period
+	myV->Ie = 0;				// Integrating the error
+	myV->v_1 = 0;				// Initializing previous speed
 	/********************/
 
 
@@ -166,13 +181,13 @@ void initVehicle(vehicle_t *myV, const int w, const int h) {
 			/* Bottom Side of screen
 			 */
 			theta = 1;
-			nb = (h - STREET_W) / blkLen;		// Number of blocks along y axis
+			nb = (H - STREET_W) / blkLen;		// Number of blocks along y axis
 			myV->theta += M_PI;					// 270 	deg
 			myV->yr += nb * blkLen - STREET_W;
 			/*					|________ where counting from bottom
 			 */
 		}
-		nb = (w - STREET_W) / blkLen;			// Number of blocks along y axis
+		nb = (W - STREET_W) / blkLen;			// Number of blocks along y axis
 		do { myV->xr = STREET_W + rand()%(nb * blkLen);	/* Random position between first corner
 														 * up to rightest corner of the rightest block
 														 */
@@ -189,14 +204,14 @@ void initVehicle(vehicle_t *myV, const int w, const int h) {
 			/* Right Side of Screen
 			 */
 			theta = 3;
-			nb = (w - STREET_W) / blkLen;		// Number of blocks along x axis
+			nb = (W - STREET_W) / blkLen;		// Number of blocks along x axis
 			myV->theta += M_PI; 				// 180 deg
 			myV->xr += nb * blkLen - STREET_W;	// Rightest corner of the rightest block
 			/*					|________ where counting from bottom
 			 */
 		}
 
-		nb = (h - STREET_W) / blkLen;			// Number of blocks along y axis
+		nb = (H - STREET_W) / blkLen;			// Number of blocks along y axis
 
 		do { myV->yr = STREET_W + rand()%(nb * blkLen); 	/* Random position between
 															 * first corner til last corner
@@ -215,5 +230,7 @@ void initVehicle(vehicle_t *myV, const int w, const int h) {
 	placeCarInStreet(myV, theta);
 	initCam(&myV->cam, myV->xr, myV->yr);
 	rotatePoints(myV); // Re-rotating the points according new position
+	pthread_mutex_lock(&screen_lock);
 	polygon(screen, 4, myV->point, myV->color);
+	pthread_mutex_unlock(&screen_lock);
 }

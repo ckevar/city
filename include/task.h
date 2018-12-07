@@ -6,8 +6,7 @@
 
 /*Structure that defines the parameters of a real time task*/
 typedef struct {
-	pthread_t tid;				/*task id*/
-	//int arg;					/* task argument */
+	pthread_t tid;				/* task id*/
 	long wcet;					/* in microseconds */
 	int period;					/* in milliseconds */
 	int deadline;				/* relative (ms) */
@@ -15,14 +14,15 @@ typedef struct {
 	int dmiss;					/* no. of misses */
 	struct timespec at;			/* next activ. time */
 	struct timespec dl;			/* abs. deadline */
-	void (*function)(void* a);	/*task cose to be executed*/
-	void* arg;
+	void (*init)(void *a);	/* task cose to be executed*/
+	void (*run)(void *a);	/* task cose to be executed*/
+	void *arg;					/* argument of the function */
 } rt_task_par_t;
 
 /*	Creates a task executing the function fun
 *	With period expressed in milliseconds
 *	Returns 0 on success, error code otherwise
 */
-int task_create(void* fun, void* arg, rt_task_par_t* par, int period, int deadline, int priority);
+int task_create(void *init, void *run, void *arg, rt_task_par_t *par, int period, int deadline, int priority);
 
 #endif

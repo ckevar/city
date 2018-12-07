@@ -1,10 +1,13 @@
 #include <stdio.h>
 #include <allegro.h>
+#include <pthread.h>
 
 #include "types.h"
 #include "vehicle.h"
 #include "utils.h"
 #include "task.h"
+
+extern pthread_mutex_t screen_lock;
 
 void *dummy(void* arg){
 	int* p;
@@ -12,6 +15,7 @@ void *dummy(void* arg){
 	int x;
 	x = *p;
 	printf("I am Dummy %d\n", x);
+	printf("I am a Dumb\n");
 }
 
 void initialize_graphics()
@@ -35,17 +39,31 @@ int main(int argc, char const *argv[])
 	initialize_graphics();
 
 	/**** Testing Vehicle *****/
-	vehicle_t v1;
-	initVehicle(&v1, W, H);
-	moveVehicle(&v1);
-	getFrame(&v1);
+	// for (int i = 0; i < 2; ++i) {
+		vehicle_t myCar;
+		rt_task_par_t vehicle_prm;
+		task_create(initVehicle, moveVehicle, &myCar, &vehicle_prm, 200, 200, 2);
+
+		vehicle_t myCar2;
+		rt_task_par_t vehicle_prm2;
+		task_create(initVehicle, moveVehicle, &myCar2, &vehicle_prm2, 200, 200, 2);
+
+		vehicle_t myCar3;
+		rt_task_par_t vehicle_prm3;
+		task_create(initVehicle, moveVehicle, &myCar3, &vehicle_prm3, 200, 200, 2);
+
+		vehicle_t myCar4;
+		rt_task_par_t vehicle_prm4;
+		task_create(initVehicle, moveVehicle, &myCar4, &vehicle_prm4, 200, 200, 2);
+
+	// }
 	/**********************/
 
 	/**** Test Task *******/
 	rt_task_par_t dummy_par;
 	int i;
 	i = 1;
-	task_create(dummy, &i, &dummy_par, 1, 1, 99);
+	// task_create(NULL, dummy, &i, &dummy_par, 1000, 1000, 1);
 	// task_create(dummy, &dummy_par, 1, 1, 99);
 	/***********************/
 

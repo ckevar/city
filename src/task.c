@@ -37,40 +37,85 @@ void wait_for_activation(rt_task_par_t * parameters){
 
 /*Periodic task management*/
 void periodic_task(void* arg) {
-	rt_task_par_t * parameters = (rt_task_par_t *) arg;
-	struct timespec t, now;
-	set_activation(parameters);
-
+	rt_task_par_t * prm = (rt_task_par_t *) arg;
+	set_activation(prm);
+	// it runs this, but doenst run the second one
+	prm->init(prm->arg); 			// Inits the ARG entity
+	printf("at periodic_task\n");
 	while (1) {
-		// (*(parameters->function))();
-		parameters->function(parameters->arg);
-		if(deadline_miss(parameters)){
+		// this one
+		prm->run(prm->arg);			// Runs
+		if(deadline_miss(prm)){
 			//do something
 		}
-		wait_for_activation(parameters);
+		wait_for_activation(prm);
 	}
 }
 
-/*Creates a task executing the function fun*/
-int task_create(void* fun, void* arg, rt_task_par_t* par, int period, int deadline, int priority){
+/*Creates a task executing the function run*/
+// int task_create(void *init, void *run, void *arg, rt_task_par_t *par, int period, int deadline, int priority){
+
+// 	pthread_attr_t myattr;
+// 	struct sched_param mypar;
+// 	int tret;
+
+// 	if(priority > 99){
+// 		priority = 99;
+// 		fprintf(stderr, "Cannot assign a priority higher than 99, assigning 99 to the task priority \n");
+// 	}
+// 	// (*init)(arg);
+
+// 	/*setting up the parameters of the task from input*/
+// 	par->dmiss 		=	0;
+// 	par->init 		= 	init;
+// 	par->run 		=	run;
+// 	par->arg		=	arg;
+// 	par->period 	=	period;
+// 	par->deadline 	=	deadline;
+// 	par->priority 	=	priority;
+
+	
+// 	pthread_attr_init(&myattr);
+
+// 	/*notifying different scheduling from parent: */
+// 	pthread_attr_setinheritsched(&myattr,PTHREAD_EXPLICIT_SCHED);
+
+// 	/*setting the scheduler (for now fixed-pr. + RR): */
+// 	pthread_attr_setschedpolicy(&myattr,SCHED_RR);
+
+// 	mypar.sched_priority = par->priority;
+// 	/*setting thread priority*/
+// 	pthread_attr_setschedparam(&myattr,&mypar);
+
+// 	tret = pthread_create(&(par->tid), &myattr, (void *) &periodic_task, par);
+// 	if(tret)
+// 		fprintf(stderr, "Error while creating a new task! %d\n", tret);
+
+// 	return tret;
+// }
+
+int task_create(void *init, void *run, void *arg, rt_task_par_t *par, int period, int deadline, int priority){
 
 	pthread_attr_t myattr;
 	struct sched_param mypar;
 	int tret;
 
-	if(priority>99){
+	if(priority > 99){
 		priority = 99;
 		fprintf(stderr, "Cannot assign a priority higher than 99, assigning 99 to the task priority \n");
 	}
+	// (*init)(arg);
 
 	/*setting up the parameters of the task from input*/
 	par->dmiss 		=	0;
-	par->function 	=	fun;
+	par->init 		= 	init;
+	par->run 		=	run;
 	par->arg		=	arg;
 	par->period 	=	period;
 	par->deadline 	=	deadline;
 	par->priority 	=	priority;
 
+	
 	pthread_attr_init(&myattr);
 
 	/*notifying different scheduling from parent: */
