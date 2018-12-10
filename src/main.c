@@ -26,8 +26,14 @@ void initialize_graphics()
 
 	clear_to_color(screen, STREET_COL);
 
+	/*traffic lights matrix*/
+	int n_blocks_x, n_blocks_y;
+	n_blocks_x = (W - STREET_W) / (BLOCK_W + STREET_W);
+	n_blocks_y = (H - STREET_W) / (BLOCK_W + STREET_W);
+	int tl_matrix[n_blocks_x*2 * n_blocks_y*2];
+
 	/*Initializing a simple random map*/
-	initRandomMap(STREET_W);
+	initRandomMap(tl_matrix, STREET_W);
 }
 
 int main(int argc, char const *argv[])

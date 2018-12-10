@@ -1,8 +1,36 @@
 #include <allegro.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <time.h>
 #include "utils.h"
+#include "tlgraphics.h"
+
+/*Draws street lines on the map*/
+void drawStreetLines(const int street_w, const int block_w, const int someCoeff,
+						const int n_blocks_x, const int n_blocks_y){
+	
+	line(screen, street_w / 2, street_w / 2,
+				n_blocks_x*block_w + n_blocks_x*street_w + street_w / 2, 
+				street_w / 2, SL_COL);
+	line(screen, street_w / 2, street_w / 2, street_w / 2,
+				n_blocks_y*block_w + n_blocks_y*street_w + street_w / 2, SL_COL);
+	line(screen, n_blocks_x*block_w + n_blocks_x*street_w + street_w / 2, 
+				street_w / 2,
+				n_blocks_x*block_w + n_blocks_x*street_w + street_w / 2,
+				n_blocks_y*block_w + n_blocks_y*street_w + street_w / 2, SL_COL);
+	line(screen, street_w / 2,
+				n_blocks_y*block_w + n_blocks_y*street_w + street_w / 2,
+	 			n_blocks_x*block_w + n_blocks_x*street_w + street_w / 2, 
+	 			n_blocks_y*block_w + n_blocks_y*street_w + street_w / 2, SL_COL);
+
+	int i, j;
+	for(i = 0; i < n_blocks_x; i++){
+		for(j = 0; j < n_blocks_y; j++){
+			/*vertical lines*/
+			//if(getpixel(screen, i*someCoeff + street_w / 2, ))
+		}
+	}
+}
+
 
 /*Initializes a regular grid with specified dimensions*/
 void initGridMap(const int street_w, const int block_w){
@@ -25,7 +53,7 @@ void initGridMap(const int street_w, const int block_w){
 }
 
 /*Initializes a random grid with specified dimensions*/
-void initRandomMap(const int street_w){
+void initRandomMap(int* tl_matrix, const int street_w){
 
 	int current_blocks = 0;
 	int n_blocks_x, n_blocks_y;
@@ -43,6 +71,8 @@ void initRandomMap(const int street_w){
 	for(i = 0; i < n_blocks_x; i++){
 		for(j = 0; j < n_blocks_y; j++){
 
+			printf("%d\n",j);
+
 			random_factor = rand() % 100;
 
 			if(random_factor >= 50 || (i == n_blocks_x - 1) || (j == n_blocks_y - 1)) {
@@ -58,16 +88,15 @@ void initRandomMap(const int street_w){
 							 (j * someCoeff) + street_w, 
 							 (i * someCoeff) + BLOCK_W + a * street_w, 
 							 (j * someCoeff) + BLOCK_W + b * street_w, BLOCK_COL);
-			/*
-			else{
-				rectfill(screen, (i * someCoeff) + street_w, 
-								(j * someCoeff) + street_w, 
-								(i * someCoeff) + BLOCK_W + 2*street_w, 
-								(j * someCoeff) + BLOCK_W + 2*street_w, BLOCK_COL);
-			}
-			*/
+
+
+			drawTLCabins(street_w, BLOCK_W, i, j, someCoeff, n_blocks_x, n_blocks_y);
 		}
 	}
+
+	initTrafficLights(tl_matrix, n_blocks_x, n_blocks_y, someCoeff, street_w, BLOCK_W);
+
+	//drawStreetLines(street_w, BLOCK_W, someCoeff, n_blocks_x, n_blocks_y);
 }
 
 

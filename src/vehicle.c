@@ -72,7 +72,7 @@ void *moveVehicle(void *myV) {
 	 */
 	// printf("at moveVehicle %f\n", c->T);
 	c->vel = (c->T / (c->m + c->b * c->T) ) * c->u + (c->m / (c->m + c->b * c->T)) * c->v_1;
-	c->dx +=  c->vel * c->T;		// distance covered by c->vel;
+	c->dx =  c->vel * c->T;		// distance covered by c->vel;
 	c->xr += c->dx * cos(c->theta);	// New position over x
 	c->yr += c->dx * sin(c->theta);	// New position over y
 
