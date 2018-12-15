@@ -14,8 +14,8 @@ typedef struct {
 	int dmiss;					/* no. of misses */
 	struct timespec at;			/* next activ. time */
 	struct timespec dl;			/* abs. deadline */
-	void (*init)(void *a);	/* task cose to be executed*/
-	void (*run)(void *a);	/* task cose to be executed*/
+	void (*init)(void *a);		/* task setup to be executed*/
+	void (*run)(void *a);		/* task running to be executed*/
 	void *arg;					/* argument of the function */
 } rt_task_par_t;
 

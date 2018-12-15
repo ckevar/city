@@ -1,3 +1,5 @@
+#include <allegro.h>
+
 #ifndef UTILS_H
 #define UTILS_H
 
@@ -12,25 +14,26 @@
 #define MAX_KNOWN_ENCODED_COLORS 15
 
 /*COLORS USED FOR THE MAP*/
-#define STREET_COL	15
-#define BLOCK_COL	2
+#define STREET_COL	makecol(242,242,242)
+#define BLOCK_COL	makecol(0,121,107)
 
 /*STANDARD DIMENSIONS OF THE STREETS AND BLOCKS*/
 #define BLOCK_W 	100
 #define STREET_W 	40
 
 /*NUMBER OF BLOCKS PER AXIS*/
-#define N_BLOCKS_X
-#define N_BLOCKS_Y
+#define N_BLOCKS_X	(W - STREET_W) / (BLOCK_W + STREET_W)
+#define N_BLOCKS_Y	(H - STREET_W) / (BLOCK_W + STREET_W)
+#define SOMECOEFF	BLOCK_W + STREET_W
 
 /*COLORS AND SIZE FOR TRAFFIC LIGHTS*/
-#define TL_COL		14
+#define TL_COL		makecol(235,216,59)
 #define TL_SIZE		16
 #define BL_BORDER	3
 #define LIGHTS_RAY	5
 
 /*COLORS FOR TRAFFIC LIGHTS*/
-#define TL_GREEN	10
+#define TL_GREEN	makecol(43, 171, 17)
 #define TL_YELLOW	42
 #define TL_RED		12
 
@@ -41,6 +44,6 @@
 void initGridMap(const int street_w, const int block_w);
 
 /*Inits a random map*/
-void initRandomMap(int* tl_matrix, const int street_w);
+void initRandomMap(int* tl_matrix);
 
 #endif
