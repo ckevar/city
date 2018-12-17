@@ -33,7 +33,7 @@ void drawStreetLines(const int street_w, const int block_w, const int someCoeff,
 
 
 /*Initializes a regular grid with specified dimensions*/
-void initGridMap(const int street_w, const int block_w){
+void initGridMap(int *tl_matrix, const int street_w, const int block_w){
 	char n_blocks_x, n_blocks_y;
 	int i, j;
 
@@ -48,8 +48,11 @@ void initGridMap(const int street_w, const int block_w){
 							(j * someCoeff) + street_w, 
 							(i * someCoeff) + block_w + street_w, 
 							(j * someCoeff) + block_w + street_w, BLOCK_COL);
+			drawTLCabins(tl_matrix, i, j, someCoeff);
 		}
-	}	
+	}
+
+	initTrafficLights(tl_matrix, n_blocks_x, n_blocks_y, someCoeff, street_w, BLOCK_W);	
 }
 
 /*Initializes a random grid with specified dimensions*/

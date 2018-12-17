@@ -41,7 +41,7 @@
 #define SL_COL		0
 
 /*Inits grid map*/
-void initGridMap(const int street_w, const int block_w);
+void initGridMap(int *tl_matrix, const int street_w, const int block_w);
 
 /*Inits a random map*/
 void initRandomMap(int* tl_matrix);

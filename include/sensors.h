@@ -10,6 +10,10 @@
 #define SMAX 30
 #define STEP 1
 #define RANGEFINDER_4_BEAMS 4
+
+/** BINARY COLOR DEFINITION **/
+#define	BLACK	0
+#define	WHITE	15
  
 /**** REAL-TIME TASKS ****/
 void *getFrame(vehicle_t *myVehicle);
@@ -20,7 +24,7 @@ void initCam(cam_t *myCam, const int x, const int y);
 /* Inits camera features
  */
  
-void analyzeCameraFrame(vehicle_t *myVehicle);
+void analyzeCameraFrame(vehicle_t *myVehicle, imfeatures_t *imft);
 /* analyze the camera frame
  */
  

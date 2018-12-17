@@ -36,18 +36,19 @@ void wait_for_activation(rt_task_par_t * parameters){
 }
 
 /*Periodic task management*/
-void periodic_task(void* arg) {
+void *periodic_task(void* arg) {
 	rt_task_par_t * prm = (rt_task_par_t *) arg;
 	set_activation(prm);
 	// it runs this, but doenst run the second one
 	prm->init(prm->arg); 			// Inits the ARG entity
-	printf("at periodic_task\n");
+
 	while (1) {
-		// this one
+
 		prm->run(prm->arg);			// Runs
-		if(deadline_miss(prm)){
-			//do something
-		}
+
+		if(deadline_miss(prm))
+			fprintf(stderr, "[WARNING:] Deadline Miss\n");
+			
 		wait_for_activation(prm);
 	}
 }
@@ -81,16 +82,16 @@ int task_create(void *init, void *run, void *arg, rt_task_par_t *par, int period
 	pthread_attr_init(&myattr);
 
 	/*notifying different scheduling from parent: */
-	pthread_attr_setinheritsched(&myattr,PTHREAD_EXPLICIT_SCHED);
+	pthread_attr_setinheritsched(&myattr, PTHREAD_EXPLICIT_SCHED);
 
 	/*setting the scheduler (for now fixed-pr. + RR): */
-	pthread_attr_setschedpolicy(&myattr,SCHED_RR);
+	pthread_attr_setschedpolicy(&myattr, SCHED_RR);
 
 	mypar.sched_priority = par->priority;
 	/*setting thread priority*/
-	pthread_attr_setschedparam(&myattr,&mypar);
+	pthread_attr_setschedparam(&myattr, &mypar);
 
-	tret = pthread_create(&(par->tid), &myattr, (void *) &periodic_task, par);
+	tret = pthread_create(&(par->tid), &myattr, periodic_task, par);
 	if(tret)
 		fprintf(stderr, "Error while creating a new task! %d\n", tret);
 

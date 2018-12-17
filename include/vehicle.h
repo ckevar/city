@@ -14,8 +14,9 @@
 #define MAX_FRICTION_CAR    60
  
 // CONTROLLER PARAMETERS
-#define  PID_KP 30000.0;
-#define  PID_KI 2000.0;
+#define	PID_KP	30000.0
+#define	PID_KI	2000.0
+#define	V_REF	10.0
  
 /***** Real-Time Task *****/
 void *vehicle(void *myVehi);

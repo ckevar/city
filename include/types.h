@@ -2,11 +2,31 @@
 #define TYPE_H 
 
 #define NUM_BEAMS 4
-#define HRES 16
-#define VRES 9
+#define HRES 80
+#define VRES 60
 
+#define MAX_ELEMNTS	255	// Max num of elements
 
 typedef enum tlState_ {RED_LIGHT, ORANGE_LIGHT, GREEN_LIGHT} tlState_t;
+typedef enum steer_ {STEER_LEFT, STEER_RIGHT, DONT_STEER, TURN_180} steer_t;
+
+typedef struct {
+	int x[MAX_ELEMNTS];	// Coordinates along x
+	int y[MAX_ELEMNTS];	// Coordinates along y
+	int N;				// Number of elements being used 
+} imxy_t;
+
+typedef struct {
+	int 	TLstatus;		// the traffic light color
+	int 	TLminDistance;	// distance to the closest traffic light
+	imxy_t	TLcenter;		// Center of the traffic lights, if any
+	imxy_t 	streetCorner;	// Coordinates of corners, if any
+} imfeatures_t;
+
+typedef struct { // disjoint-set data structure
+	int parent;
+	int child;
+} disjoint_t;
 
 typedef struct  
 {
