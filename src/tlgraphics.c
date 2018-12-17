@@ -24,10 +24,10 @@ void switchLight(int* tl_matrix, const int i, const int j,
 
 	int x_tl, y_tl;
 
-	if(i%2){	//left side of the block
+	if(i%2){	//right side of the block
 		x_tl = x_right - BL_BORDER - TL_SIZE/2;
 	}
-	else {		//right side of the block
+	else {		//left side of the block
 		x_tl = x_left + BL_BORDER + TL_SIZE/2;
 	}
 
@@ -40,6 +40,34 @@ void switchLight(int* tl_matrix, const int i, const int j,
 
 	tl_matrix[j*N_BLOCKS_X*2 + i] = col_dest;
 	circlefill(screen, x_tl, y_tl, LIGHTS_RAY, col_dest);
+
+
+	if(i%2 && j%2){			//bottom right of the screen => half a circle top cabinet
+		rectfill(screen, x_right - TL_SIZE - BL_BORDER, y_low - BL_BORDER,
+			x_right - BL_BORDER, y_tl, TL_COL);
+		rect(screen, x_right - TL_SIZE - BL_BORDER, y_low - BL_BORDER,
+			x_right - BL_BORDER, y_low - TL_SIZE - BL_BORDER, 0);
+	}
+
+	else if(i%2 && !(j%2)){	//top right of the block => half a circle left cabinet
+		rectfill(screen, x_tl, y_up + TL_SIZE + BL_BORDER,
+			x_right - BL_BORDER, y_up + BL_BORDER, TL_COL);
+		rect(screen, x_right - TL_SIZE - BL_BORDER, y_up + TL_SIZE + BL_BORDER,
+			x_right - BL_BORDER, y_up + BL_BORDER, 0);
+	}
+
+	else if(!(i%2) && j%2){	//bottom left of the block => half a circle right cabinet
+		rectfill(screen, x_left + BL_BORDER, y_low - BL_BORDER,
+			x_tl, y_low - TL_SIZE - BL_BORDER, TL_COL);
+		rect(screen, x_left + BL_BORDER, y_low - BL_BORDER,
+			x_left + TL_SIZE + BL_BORDER, y_low - TL_SIZE - BL_BORDER, 0);
+	}
+	else{					//top left of the block => half a circle bottom cabinet
+		rectfill(screen, x_left + BL_BORDER, y_tl,
+			x_left + TL_SIZE + BL_BORDER, y_up + BL_BORDER, TL_COL);
+		rect(screen, x_left + BL_BORDER, y_up + TL_SIZE + BL_BORDER,
+			x_left + TL_SIZE + BL_BORDER, y_up + BL_BORDER, 0);
+	}
 }
 
 /*Draws the initial traffic lights and returns a pointer to them*/
@@ -124,11 +152,15 @@ void drawTLCabins(int* tl_matrix, const int i, const int j, const int someCoeff)
 		if(!(i == N_BLOCKS_X - 1 && j == 0)){
 			rectfill(screen, x_right - TL_SIZE - BL_BORDER, y_up + TL_SIZE + BL_BORDER,
 					x_right - BL_BORDER, y_up + BL_BORDER, TL_COL);
-			rect(screen, x_right - TL_SIZE - BL_BORDER, y_up + TL_SIZE + BL_BORDER,
-					x_right - BL_BORDER, y_up + BL_BORDER, 0);
 			tl_matrix[j*2*N_BLOCKS_X*2 + i*2 + 1] = TL_RED;
+
+			/*half a circle on left of the cabinet*/
 			circlefill(screen, x_right - BL_BORDER - TL_SIZE/2,
 				y_up + BL_BORDER + TL_SIZE/2, LIGHTS_RAY, TL_RED);
+			rectfill(screen, x_right - TL_SIZE/2 - BL_BORDER, y_up + BL_BORDER,
+				x_right - BL_BORDER, y_up + TL_SIZE + BL_BORDER, TL_COL);
+			rect(screen, x_right - TL_SIZE - BL_BORDER, y_up + TL_SIZE + BL_BORDER,
+					x_right - BL_BORDER, y_up + BL_BORDER, 0);
 		}
 	}
 	else{tl_matrix[j*2*N_BLOCKS_X*2+ i*2 + 1] = -1;}
@@ -138,11 +170,15 @@ void drawTLCabins(int* tl_matrix, const int i, const int j, const int someCoeff)
 		if(!(i == N_BLOCKS_X - 1 && j == N_BLOCKS_Y - 1)){
 			rectfill(screen, x_right - TL_SIZE - BL_BORDER, y_low - BL_BORDER,
 					x_right - BL_BORDER, y_low - TL_SIZE - BL_BORDER, TL_COL);
-			rect(screen, x_right - TL_SIZE - BL_BORDER, y_low - BL_BORDER,
-					x_right - BL_BORDER, y_low - TL_SIZE - BL_BORDER, 0);
 			tl_matrix[(j*2+1)*N_BLOCKS_X*2 + i*2 + 1] = TL_GREEN;
+
+			/*half a circle on top of the cabinet*/
 			circlefill(screen, x_right - BL_BORDER - TL_SIZE/2,
 				y_low - BL_BORDER - TL_SIZE/2, LIGHTS_RAY, TL_GREEN);
+			rectfill(screen, x_right - TL_SIZE - BL_BORDER, y_low - BL_BORDER,
+				x_right - BL_BORDER, y_low - TL_SIZE/2 - BL_BORDER, TL_COL);
+			rect(screen, x_right - TL_SIZE - BL_BORDER, y_low - BL_BORDER,
+					x_right - BL_BORDER, y_low - TL_SIZE - BL_BORDER, 0);
 		}
 
 	}
@@ -153,11 +189,15 @@ void drawTLCabins(int* tl_matrix, const int i, const int j, const int someCoeff)
 		if(i || j){
 			rectfill(screen, x_left + BL_BORDER, y_up + TL_SIZE + BL_BORDER,
 					x_left + TL_SIZE + BL_BORDER, y_up + BL_BORDER, TL_COL);
-			rect(screen, x_left + BL_BORDER, y_up + TL_SIZE + BL_BORDER,
-					x_left + TL_SIZE + BL_BORDER, y_up + BL_BORDER, 0);
 			tl_matrix[j*2*N_BLOCKS_X*2 + i*2] = TL_RED;
+
+			/*half a circle on the bottom of the cabinet*/
 			circlefill(screen, x_left + BL_BORDER + TL_SIZE/2,
 				y_up + BL_BORDER + TL_SIZE/2, LIGHTS_RAY, TL_RED);
+			rectfill(screen, x_left + BL_BORDER, y_up + TL_SIZE/2 + BL_BORDER,
+				x_left + TL_SIZE + BL_BORDER, y_up + BL_BORDER, TL_COL);
+			rect(screen, x_left + BL_BORDER, y_up + TL_SIZE + BL_BORDER,
+					x_left + TL_SIZE + BL_BORDER, y_up + BL_BORDER, 0);
 		}
 	}
 	else{tl_matrix[j*2*N_BLOCKS_X*2 + i*2] = -1;}
@@ -167,11 +207,15 @@ void drawTLCabins(int* tl_matrix, const int i, const int j, const int someCoeff)
 		if(!(i == 0 && j == N_BLOCKS_Y - 1)){
 			rectfill(screen, x_left + BL_BORDER, y_low - BL_BORDER,
 					x_left + TL_SIZE + BL_BORDER, y_low - TL_SIZE - BL_BORDER, TL_COL);
-			rect(screen, x_left + BL_BORDER, y_low - BL_BORDER,
-					x_left + TL_SIZE + BL_BORDER, y_low - TL_SIZE - BL_BORDER, 0);
 			tl_matrix[(j*2+1)*N_BLOCKS_X*2 + i*2] = TL_GREEN;
+
+			/*half a circle on the right of the cabinet*/
 			circlefill(screen, x_left + BL_BORDER + TL_SIZE/2,
 				y_low - BL_BORDER - TL_SIZE/2, LIGHTS_RAY, TL_GREEN);
+			rectfill(screen, x_left + BL_BORDER, y_low - BL_BORDER,
+				x_left + TL_SIZE/2 + BL_BORDER, y_low - TL_SIZE - BL_BORDER, TL_COL);
+			rect(screen, x_left + BL_BORDER, y_low - BL_BORDER,
+					x_left + TL_SIZE + BL_BORDER, y_low - TL_SIZE - BL_BORDER, 0);
 		}
 	}
 	else{tl_matrix[(j*2+1)*N_BLOCKS_X*2 + i*2] = -1;}
