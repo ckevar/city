@@ -11,6 +11,6 @@ void drawTLCabins(int* tl_matrix, const int i, const int j, const int someCoeff)
 
 /*Switches traffic light to col_dest*/
 void switchLight(int* tl_matrix, const int i, const int j,
-				const int someCoeff, const int col_dest);
+				const int someCoeff, const int col_dest, const int col_mat);
 
 #endif

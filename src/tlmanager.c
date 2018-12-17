@@ -20,13 +20,16 @@ void tl_manager(void *arg){
 		for(j = 0; j < N_BLOCKS_Y*2; j++){
 
 			if(myarg->tl_matrix[j * N_BLOCKS_X * 2 + i] == TL_GREEN){
-				switchLight(myarg->tl_matrix, i, j, SOMECOEFF, TL_YELLOW);
+				switchLight(myarg->tl_matrix, i, j, SOMECOEFF, TL_YELLOW, TL_YELLOW);
 			}
 			else if(myarg->tl_matrix[j * N_BLOCKS_X * 2 + i] == TL_YELLOW){
-				switchLight(myarg->tl_matrix, i, j, SOMECOEFF, TL_RED);
+				switchLight(myarg->tl_matrix, i, j, SOMECOEFF, TL_RED, TL_RED);
 			}
 			else if(myarg->tl_matrix[j * N_BLOCKS_X * 2 + i] == TL_RED){
-				switchLight(myarg->tl_matrix, i, j, SOMECOEFF, TL_GREEN);
+				switchLight(myarg->tl_matrix, i, j, SOMECOEFF, TL_RED, 2*TL_RED);
+			}
+			else if(myarg->tl_matrix[j * N_BLOCKS_X * 2 + i] == 2*TL_RED){
+				switchLight(myarg->tl_matrix, i, j, SOMECOEFF, TL_GREEN, TL_GREEN);
 			}
 			
 		}

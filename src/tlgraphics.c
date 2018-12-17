@@ -4,7 +4,7 @@
 
 /*Switches traffic light to col_dest*/
 void switchLight(int* tl_matrix, const int i, const int j,
-				 const int someCoeff, const int col_dest){
+				 const int someCoeff, const int col_dest, const int col_mat){
 
 	if(tl_matrix[j*N_BLOCKS_X*2 + i] == -1)
 		return;
@@ -38,7 +38,7 @@ void switchLight(int* tl_matrix, const int i, const int j,
 		y_tl = y_up + BL_BORDER + TL_SIZE/2;
 	}
 
-	tl_matrix[j*N_BLOCKS_X*2 + i] = col_dest;
+	tl_matrix[j*N_BLOCKS_X*2 + i] = col_mat;
 	circlefill(screen, x_tl, y_tl, LIGHTS_RAY, col_dest);
 
 
