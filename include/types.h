@@ -44,7 +44,7 @@ typedef struct
 	unsigned	resV;				// Vertical Resolution
 	unsigned	x;					// x position
 	unsigned	y;					// y position
-	unsigned 	image[HRES][VRES];	// image
+	unsigned 	image[VRES][HRES];	// image
 } cam_t;
 
 typedef struct 

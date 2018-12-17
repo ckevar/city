@@ -98,6 +98,7 @@ void *getFrame(vehicle_t *c) {
 			x = (-vRes/2 + i) * cost - (-hRes/2 + j) * sint + x0; 
 			y = (-vRes/2 + i) * sint + (-hRes/2 + j) * cost + y0; 
 			c->cam.image[i][j] = getpixel(screen, x, y);
+			putpixel(screen, 400 + i, 620 + j, c->cam.image[i][j]);
 		}
 	}
 }
@@ -149,6 +150,17 @@ void RobertsEdgeDetector(int *im) {
 	for (i = 0; i < VRES; ++i) 
 		for (j = 0; j < HRES - 1; ++j) 
 			im2[i * HRES + j] = abs(im[i * HRES + j] - im[(i + 1) * HRES + j + 1]);
+}
+
+void RobertsEdgeDetectorH(int *im) {
+/* implementation of Roberts' Algorithm to detect edges
+ */
+	int i, j;
+	// int im2[VRES * HRES];
+ 
+	for (i = 0; i < VRES; ++i) 
+		for (j = 0; j < HRES - 1; ++j) 
+			im[i * HRES + j] = abs(im[i * HRES + j] - im[i * HRES + j + 1]);
 }
  
 void SobelEdgeDetector(int *im) {
@@ -398,14 +410,17 @@ void  analyzeCameraFrame(vehicle_t *c, imfeatures_t *imft) {
 			// Isolate color of Traffic Lights
 			bwTL[i * HRES + j] = (tmp == TL_COL) ? 
 						WHITE : BLACK;
+
+			// putpixel(screen, 400 + i, 620 + j, tmp);
 		}
 	}
 
 	/* Morphology ops will go here */
 
-	RosenfeldPfaltz(bwTL, &imft->TLcenter);
+	// RosenfeldPfaltz(bwTL, &imft->TLcenter);
+	RobertsEdgeDetectorH(bwTL);
 	fastHarrisRobertCornerDetection(bwStreet, &imft->streetCorner);
-	display(bwTL, 400, 620);
+	// display(bwStreet, 400, 620);
 	
 	/** TO BE WRAPPED UP **/
 	/** Read traffic light status **/ 
