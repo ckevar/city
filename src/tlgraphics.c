@@ -144,19 +144,28 @@ void drawTLCabins(int* tl_matrix, const int i, const int j, const int someCoeff)
 
 	unique_right	=	(getpixel(screen, x_right + 1, y_up) == BLOCK_COL) ? 0 : 1;
 	unique_left		=	(getpixel(screen, x_left - 1, y_up) == BLOCK_COL) ? 0 : 1;
-	unique_top 		=	(getpixel(screen, x_left, y_up - 1) == BLOCK_COL) ? 0 : 1;
+	unique_top		=	(getpixel(screen, x_left, y_up - 1) == BLOCK_COL) ? 0 : 1;
 	unique_bottom	=	(getpixel(screen, x_left, y_low + 1) == BLOCK_COL) ? 0 : 1;
 
+	int top_right_corner, bottom_right_corner, top_left_corner, bottom_left_corner;
+
+	top_right_corner	=	(getpixel(screen, x_right + STREET_W/2, y_up - STREET_W - 1) == BLOCK_COL
+								&& getpixel(screen, x_right + STREET_W + 1, y_up - STREET_W/2) == BLOCK_COL) ? 0 : 1;
+
+	int top_right_needed, bottom_right_needed, top_left_needed, bottom_left_needed;
+
+	top_right_needed = top_right_corner && unique_right && unique_top;
+
 	/*top right of the block*/
-	if(unique_right && unique_top){
+	if(top_right_needed){
 		if(!(i == N_BLOCKS_X - 1 && j == 0)){
 			rectfill(screen, x_right - TL_SIZE - BL_BORDER, y_up + TL_SIZE + BL_BORDER,
 					x_right - BL_BORDER, y_up + BL_BORDER, TL_COL);
-			tl_matrix[j*2*N_BLOCKS_X*2 + i*2 + 1] = TL_RED;
+			tl_matrix[j*2*N_BLOCKS_X*2 + i*2 + 1] = TL_GREEN;
 
 			/*half a circle on left of the cabinet*/
 			circlefill(screen, x_right - BL_BORDER - TL_SIZE/2,
-				y_up + BL_BORDER + TL_SIZE/2, LIGHTS_RAY, TL_RED);
+				y_up + BL_BORDER + TL_SIZE/2, LIGHTS_RAY, TL_GREEN);
 			rectfill(screen, x_right - TL_SIZE/2 - BL_BORDER, y_up + BL_BORDER,
 				x_right - BL_BORDER, y_up + TL_SIZE + BL_BORDER, TL_COL);
 			rect(screen, x_right - TL_SIZE - BL_BORDER, y_up + TL_SIZE + BL_BORDER,
@@ -170,11 +179,11 @@ void drawTLCabins(int* tl_matrix, const int i, const int j, const int someCoeff)
 		if(!(i == N_BLOCKS_X - 1 && j == N_BLOCKS_Y - 1)){
 			rectfill(screen, x_right - TL_SIZE - BL_BORDER, y_low - BL_BORDER,
 					x_right - BL_BORDER, y_low - TL_SIZE - BL_BORDER, TL_COL);
-			tl_matrix[(j*2+1)*N_BLOCKS_X*2 + i*2 + 1] = TL_GREEN;
+			tl_matrix[(j*2+1)*N_BLOCKS_X*2 + i*2 + 1] = TL_RED;
 
 			/*half a circle on top of the cabinet*/
 			circlefill(screen, x_right - BL_BORDER - TL_SIZE/2,
-				y_low - BL_BORDER - TL_SIZE/2, LIGHTS_RAY, TL_GREEN);
+				y_low - BL_BORDER - TL_SIZE/2, LIGHTS_RAY, TL_RED);
 			rectfill(screen, x_right - TL_SIZE - BL_BORDER, y_low - BL_BORDER,
 				x_right - BL_BORDER, y_low - TL_SIZE/2 - BL_BORDER, TL_COL);
 			rect(screen, x_right - TL_SIZE - BL_BORDER, y_low - BL_BORDER,
