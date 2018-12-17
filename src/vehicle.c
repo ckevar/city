@@ -80,8 +80,9 @@ void pathPlanner(vehicle_t *c) {
 		/**************/
 	} else {
 		
-		if ((imf.TLminDistance < 9) && (imf.TLstatus == TL_RED))
-			c->Vr = 0.0;
+		if (imf.TLminDistance < 9)
+			if ((imf.TLstatus == TL_RED) || (imf.TLstatus == TL_YELLOW))
+				c->Vr = 0.0;
 
 		else if (imf.TLstatus == TL_GREEN)
 			c->Vr = 10.0;

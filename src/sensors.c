@@ -98,7 +98,6 @@ void *getFrame(vehicle_t *c) {
 			x = (-vRes/2 + i) * cost - (-hRes/2 + j) * sint + x0; 
 			y = (-vRes/2 + i) * sint + (-hRes/2 + j) * cost + y0; 
 			c->cam.image[i][j] = getpixel(screen, x, y);
-			putpixel(screen, 400 + i, 620 + j, c->cam.image[i][j]);
 		}
 	}
 }
@@ -411,25 +410,26 @@ void  analyzeCameraFrame(vehicle_t *c, imfeatures_t *imft) {
 			bwTL[i * HRES + j] = (tmp == TL_COL) ? 
 						WHITE : BLACK;
 
-			// putpixel(screen, 400 + i, 620 + j, tmp);
 		}
 	}
 
 	/* Morphology ops will go here */
 
-	// RosenfeldPfaltz(bwTL, &imft->TLcenter);
-	RobertsEdgeDetectorH(bwTL);
+	RosenfeldPfaltz(bwTL, &imft->TLcenter);
+	// RobertsEdgeDetectorH(bwTL);
 	fastHarrisRobertCornerDetection(bwStreet, &imft->streetCorner);
-	// display(bwStreet, 400, 620);
+	display(bwTL, 400, 620);
 	
 	/** TO BE WRAPPED UP **/
 	/** Read traffic light status **/ 
 	for (i = 0; i < imft->TLcenter.N; i++) {
 		if (imft->TLcenter.y[i + 1] > (HRES / 2)) {		// always look in the right
-			if (imft->TLcenter.x[i + 1] < minim) {		// check for the closest traffic light
-				minim = imft->TLcenter.x[i + 1];
-				imft->TLminDistance = minim; 
-				imft->TLstatus = c->cam.image[imft->TLcenter.x[i + 1]][imft->TLcenter.y[i + 1]];
+			if (imft->TLcenter.x[i + 1] > 5) {
+				if (imft->TLcenter.x[i + 1] < minim) {		// check for the closest traffic light
+					minim = imft->TLcenter.x[i + 1];
+					imft->TLminDistance = minim; 
+					imft->TLstatus = c->cam.image[imft->TLcenter.x[i + 1] - 5][imft->TLcenter.y[i + 1] - 2];
+				}
 			}
 		}
 	}
