@@ -66,12 +66,7 @@ void initRandomMap(int *tl_matrix){
 	int a, b;
 
 	srand (time(NULL));
-
-	for (i = 0; i < N_BLOCKS_X * 2; i++) {
-		for (j = 0; j < N_BLOCKS_Y * 2; j++) {
-			tl_matrix[j * N_BLOCKS_X * 2 + i] = 0;
-		}
-	}
+	
 
 	for(i = 0; i < N_BLOCKS_X; i++){
 		for(j = 0; j < N_BLOCKS_Y; j++){
@@ -93,6 +88,11 @@ void initRandomMap(int *tl_matrix){
 							 (j * someCoeff) + BLOCK_W + b * STREET_W, BLOCK_COL);
 
 
+		}
+	}
+
+	for (i = 0; i < N_BLOCKS_X; i++) {
+		for (j = 0; j < N_BLOCKS_Y; j++) {
 			drawTLCabins(tl_matrix, i, j, someCoeff);
 		}
 	}

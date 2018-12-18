@@ -37,6 +37,7 @@ int tl_matrix[N_BLOCKS_X*2 * N_BLOCKS_Y*2];
 
 int main(int argc, char const *argv[])
 {
+	srand (time(NULL));
 	allegro_init();
 
 	//n_blocks = 30;	//for now

@@ -5,7 +5,7 @@
 #include <stdio.h>
 
 void tl_init() {
-	sleep(4);
+	// sleep(4);
 }
 
 void tl_manager(void *arg){
