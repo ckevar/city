@@ -40,10 +40,20 @@
 /*COLOR STREET LINES*/
 #define SL_COL		0
 
-/*Inits grid map*/
+/** BINARY COLOR DEFINITION **/
+#define	BLACK	0
+#define	WHITE	15
+
+/* Inits grid map */
 void initGridMap(int *tl_matrix, const int street_w, const int block_w);
 
-/*Inits a random map*/
+/* Inits a random map */
 void initRandomMap(int* tl_matrix);
+
+/* copy int elements from source to destination */
+void cpyPnts(int *source, int *destination, const int N);
+
+/* compares int elements between A and B */
+char cmpPnts(int *A, int *B, const int N);
 
 #endif

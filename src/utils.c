@@ -31,6 +31,20 @@ void drawStreetLines(const int street_w, const int block_w, const int someCoeff,
 	}
 }
 
+/* copy int elements from source to destination */
+void cpyPnts(int *source, int *destination, const int N) {
+	int *p;
+	for (p = source; p < source + N; p++)
+		destination[p - source] = *p;
+}
+
+/* compares int elements between A and B */
+char cmpPnts(int *A, int *B, const int N) {
+	int *p;
+	for (p = A; p < A + N; p++)
+		if (*p != B[p - A]) return 1;
+	return 0;
+}
 
 /*Initializes a regular grid with specified dimensions*/
 void initGridMap(int *tl_matrix, const int street_w, const int block_w){

@@ -10,28 +10,20 @@
 #include <unistd.h>
  
 pthread_mutex_t screen_lock;
- 
-void *vehicle(void *myVehi) {
-	// vehicle_t v1;
-	// initVehicle(&v1);
-	// moveVehicle(&v1);
-	// getFrame(&v1);
-}
-
 
 void rotatePoints(vehicle_t *myV) {
 
 	/* 	Car - Reference Frame
 	 *  
-	 *	^ Y axis
-	 * 	|
+	 *	
+	 * 	--------------------------------> X axis
 	 *	|	x3, y3-----------x0, y0
 	 * 	|	|					|
 	 * 	|	|		Cx, Cy	HEAD|
 	 * 	|	|					|
 	 *	|	x2, y2-----------x1, y1
 	 *	|
-	 *  --------------------------------> X axis
+	 *  v y Axis
 	 */
 
 	double cost = cos(myV->theta);
@@ -58,10 +50,23 @@ void rotatePoints(vehicle_t *myV) {
 					(-myV->w / 2) * cost + myV->yr;	// y3
 }
 
+ 
+void keepCertainDistanceFromBlock(vehicle_t *c, const int safeDistance) {
+	if (c->ds.dsts[RIGHT_DST] > safeDistance) {
+		if (c->ds.dsts[RIGHT_DST] < SMAX) {
+			c->xr -= sin(c->theta);
+			c->yr += cos(c->theta);
+		}
+	} else if(c->ds.dsts[RIGHT_DST] <= (SMIN + 1)) {
+	 	c->xr += sin(c->theta);
+	 	c->yr -= cos(c->theta);
+	}
+}
+
 int steer(vehicle_t *c, steer_t *s) {
 
 }
- 
+
 void pathPlanner(vehicle_t *c) {
 	/* To plan the future path for the car
 	 */
@@ -70,16 +75,15 @@ void pathPlanner(vehicle_t *c) {
 	steer_t turn;
 	int isExecuted = 0;
 
+	/***** BRAKES *****/
+	if (c->ds.dsts[MID_DST] < 10)		// Minimun Distance before hit wall from front
+		c->Vr = 0;
+	/******************/
+
+	keepCertainDistanceFromBlock(c, 8);	// keep safe distance from side bloks
 	analyzeCameraFrame(c, &imf);
 
-	if ((!imf.TLcenter.N)) {        // No traffic lights detected
-		/*** brakes ***/
-		if (c->ds.dsts[0] < 13)		// Minimun Distance before hit walls
-			if (c->ds.dsts[3] < 13)   
-				c->Vr = 0;
-		/**************/
-	} else {
-		
+	if (imf.TLcenter.N) {        		// No traffic lights detected
 		if (imf.TLminDistance < 9)
 			if ((imf.TLstatus == TL_RED) || (imf.TLstatus == TL_YELLOW))
 				c->Vr = 0.0;
@@ -120,21 +124,23 @@ void pathPlanner(vehicle_t *c) {
 	//  isExecuted = steer(c, turn);    
 	// }
 }
- 
-void *moveVehicle(void *myV) {
-	vehicle_t *c = (vehicle_t *) myV;           // casting vehicle type
-	double xd = c->xr;                          // taking as double the current position
-	double yd = c->yr;                          // this one too
 
-	/** DELETING PREVIOUS POSITION **/
-	pthread_mutex_lock(&screen_lock);           // locking shared resource screen
-	polygon(screen, 4, c->point, STREET_COL);   // Delete previous position
-	pthread_mutex_unlock(&screen_lock);         // unlocking
+
+void *moveVehicle(void *myV) {
+	vehicle_t *c = (vehicle_t *) myV;           // Casting vehicle type
+	double xd;                          		// Taking as double the current position
+	double yd;                         			 // this one too
+	int tmpPosition[8];
+
+	cpyPnts(c->point, tmpPosition, 8);			// copying temporal position 
 
 	/** Reading Sensors **/
-	getRangefinder(&c->ds, RANGEFINDER_4_BEAMS);
+	getRangefinder(&c->ds, RANGEFINDER_3_BEAMS);
 	getFrame(c);
 	pathPlanner(c);
+
+	xd = c->xr;
+	yd = c->yr;
 
 	/** PI controller **/
 	c->e = c->Vr - c->v_1;                      // Computes the error
@@ -160,12 +166,19 @@ void *moveVehicle(void *myV) {
 	} 
 
 	rotatePoints(c);                        // compute new points to plot
-	place4BeamsRangefinderOnVehicle(c);     // 
-
-	pthread_mutex_lock(&screen_lock);
-	polygon(screen, 4, c->point, c->color); // Draw new position
-	pthread_mutex_unlock(&screen_lock);
-
+	place3BeamsRangefinderOnVehicle(c);     // 
+	
+	if (cmpPnts(tmpPosition, c->point, 8)) { 	/* if the points are the same as the previous one, 
+												 * the car wont be reploted
+												 */
+		/** DELETING PREVIOUS POSITION **/
+		pthread_mutex_lock(&screen_lock);           	// locking shared resource screen
+		polygon(screen, 4, tmpPosition, STREET_COL); 	// Delete previous position
+	
+		/** DRAWING NEW POSITION **/
+		polygon(screen, 4, c->point, c->color); 		// Draw new position
+		pthread_mutex_unlock(&screen_lock);
+	}
 	// c->v_1 = sqrt((c->xr - x_old) * (c->xr - x_old) + (c->yr - y_old) * (c->yr - y_old)) / c->T;
 	c->v_1 = c->vel;
 }
@@ -323,7 +336,8 @@ void *initVehicle(void *c) {
 	rotatePoints(myV);
 
 	placeCarInStreet(myV, theta);
-	place4BeamsRangefinderOnVehicle(myV);
+	// place4BeamsRangefinderOnVehicle(myV);
+	place3BeamsRangefinderOnVehicle(myV);
 	initCam(&myV->cam, myV->xr, myV->yr);
 
 	pthread_mutex_lock(&screen_lock);

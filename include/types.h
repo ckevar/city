@@ -17,6 +17,11 @@ typedef struct {
 } imxy_t;
 
 typedef struct {
+	int im[HRES * VRES];
+	imxy_t ft;
+} img_t;
+
+typedef struct {
 	int 	TLstatus;		// the traffic light color
 	int 	TLminDistance;	// distance to the closest traffic light
 	imxy_t	TLcenter;		// Center of the traffic lights, if any
@@ -44,7 +49,7 @@ typedef struct
 	unsigned	resV;				// Vertical Resolution
 	unsigned	x;					// x position
 	unsigned	y;					// y position
-	unsigned 	image[VRES][HRES];	// image
+	unsigned 	image[VRES * HRES];	// image
 } cam_t;
 
 typedef struct 
