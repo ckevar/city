@@ -63,8 +63,40 @@ void keepCertainDistanceFromBlock(vehicle_t *c, const int safeDistance) {
 	}
 }
 
-int steer(vehicle_t *c, steer_t *s) {
+int steer(vehicle_t *c, imfeatures_t *ft) {
+	switch(c->turn) {
+		case STEER_RIGHT:
+			c->theta += 0.1;
+			c->Vr = 1.0;
+			printf("I am turning right %f \n", c->Vr / (0.1 * 0.033));
+			break;
 
+		case STEER_LEFT:
+			c->theta -= 0.035;
+			c->Vr = 3.0;
+			break; 
+
+		case DONT_STEER:
+			printf("I am going straight \n");
+			break;
+
+		case TURN_180:
+			printf("I am turning around \n");
+			break;
+
+		default:		
+			fprintf(stderr, "Something went wrong \n");
+	}
+	// if (abs(c->theta - c->theta_old) > M_PI / 2.0) {
+	if (ft->stLines.N > 500) {
+		fprintf(stderr, "theta %f, theta_old %f\n", c->theta, c->theta_old);
+		c->theta_old = c->theta;
+		c->theta = c->theta_old - M_PI / 2.0;	// this is just for testing STEER_LEFT
+		c->theta_old = c->theta;
+		c->isExecuted = 0;
+	
+	} else 
+		c->isExecuted = 1;
 }
 
 void pathPlanner(vehicle_t *c) {
@@ -72,17 +104,12 @@ void pathPlanner(vehicle_t *c) {
 	 */
 
 	imfeatures_t imf;
-	steer_t turn;
-	int isExecuted = 0;
 
-	/***** BRAKES *****/
-	if (c->ds.dsts[MID_DST] < 10)		// Minimun Distance before hit wall from front
-		c->Vr = 0;
-	/******************/
+	/***** FRONT DISTANCE RESPONSE *****/
+	if (c->ds.dsts[MID_DST] < 10) c->Vr = 0;	// Minimun Distance before hit wall from front
+	/***********************************/
 
-	keepCertainDistanceFromBlock(c, 8);	// keep safe distance from side bloks
-	analyzeCameraFrame(c, &imf);
-
+	/****** TRAFFIC LIGHT REPONSE ******/
 	if (imf.TLcenter.N) {        		// No traffic lights detected
 		if (imf.TLminDistance < 9)
 			if ((imf.TLstatus == TL_RED) || (imf.TLstatus == TL_YELLOW))
@@ -91,38 +118,41 @@ void pathPlanner(vehicle_t *c) {
 		else if (imf.TLstatus == TL_GREEN)
 			c->Vr = 10.0;
 	}
+	/************************************/
+	keepCertainDistanceFromBlock(c, 8);	// keep safe distance from side bloks
+	analyzeCameraFrame(c, &imf);
 
-	/* CORNERS **/
+	/******** CROSSROAD RESPONSE ********/
+	if (!c->isExecuted) {
 
-	// if (!isExecuted) {
-	//  if (imf.streetCorner.N == 1) {  //  only one corner for the outter region of city
-	//      if (imf.streetCorner.x[0] < 5) {
-	//          turn = (imf.streetCorner.y[0] < (HRES / 2)) ? STEER_LEFT : STEER_RIGHT;
-	//          isExecuted = 1;
-	//          printf("%d \n", imf.streetCorner.x[0]);
-	//      }
-	//  }                               // if the corner is the left, turn left, otherwise turn right
-	//  else if (imf.streetCorner.N == 2) {
+		if ((imf.stCorner.x[0] < 5) && (imf.stCorner.N)) {	
+			c->turn = STEER_LEFT;
+			c->isExecuted = 1;
 
-	//      if (!(imf.streetCorner.x[0] - imf.streetCorner.x[1])) {     // if both corners are in the same x, then it can turn left or right 
-	//          if (imf.streetCorner.x[0] < 5) {
-	//              /* code */
-	//          }
-	//          turn = (rand() % 2) ? STEER_LEFT : STEER_RIGHT;
-	//      }
-	//      else 
-	//          if (imf.streetCorner.y[0] < (HRES / 2))         // if both corners are in the same y, then it goes straight or left
-	//              turn = (rand() % 2) ? STEER_LEFT : DONT_STEER;
-	//          else
-	//              turn = (rand() % 2) ? STEER_RIGHT : DONT_STEER;
-			
-	//  } else if (imf.streetCorner.N > 3) {
-	//      printf("choose randomly steer left, right or dont %d\n", rand()%3);
-	//  }
-	
-	// } else {
-	//  isExecuted = steer(c, turn);    
-	// }
+			// if (imf.streetCorner.N == 1) {  //  only one corner for the outter region of city
+			// 	turn = (imf.streetCorner.y[0] < (HRES / 2)) ? STEER_LEFT : STEER_RIGHT;
+			// 	isExecuted = 1;
+			// } else								// if the corner is the left, turn left, otherwise turn right
+			// if (imf.streetCorner.N == 2) {
+				// if (!(imf.streetCorner.x[0] - imf.streetCorner.x[1])) {      // if both corners are in the same x, then it can turn left or right 
+					// turn = (rand() % 2) ? STEER_LEFT : STEER_RIGHT;
+				// }
+				// else { 
+				// 	if (imf.streetCorner.y[0] < (HRES / 2))         // if both corners are in the same y, then it goes straight or left
+				// 		turn = (rand() % 2) ? STEER_LEFT : DONT_STEER;
+				// 	else
+				// 		turn = (rand() % 2) ? STEER_RIGHT : DONT_STEER;
+				// }
+			// }
+		//  else if (imf.streetCorner.N > 3) {
+		//      printf("choose randomly steer left, right or dont %d\n", rand()%3);
+		//  }
+		}
+	} else {
+		c->isExecuted = steer(c, &imf);
+		// c->Vr = 0.0;
+	}
+	/***********************************/
 }
 
 
@@ -164,6 +194,8 @@ void *moveVehicle(void *myV) {
 		c->xr = ceil(xd);       // New position over x
 		c->yr = ceil(yd);   
 	} 
+
+	// printf("%d %d \n", c->xr, c->yr);
 
 	rotatePoints(c);                        // compute new points to plot
 	place3BeamsRangefinderOnVehicle(c);     // 
@@ -274,6 +306,8 @@ void *initVehicle(void *c) {
 	myV->T 	= 0.033;			// Period
 	myV->Ie = 0;				// Integrating the error
 	myV->v_1 = 0;				// Initializing previous speed
+	myV->isExecuted = 0;		// steering execution event
+	myV->turn = DONT_STEER;		// starts as no init
 	/*********************************************/
 
 
@@ -327,16 +361,17 @@ void *initVehicle(void *c) {
 		} while(getpixel(screen, myV->xr, myV->yr) != STREET_COL);
 	}
 
+	myV->theta_old = myV->theta;							// this is steering purposes
+
 	// Random color but choose an available one
 	do {
-		myV->color = rand()%MAX_KNOWN_ENCODED_COLORS;
+		myV->color = rand() % MAX_KNOWN_ENCODED_COLORS;
 	} while(!isAvailableThisColor(myV->color));
 
 	// Rotate the points to plot
 	rotatePoints(myV);
 
 	placeCarInStreet(myV, theta);
-	// place4BeamsRangefinderOnVehicle(myV);
 	place3BeamsRangefinderOnVehicle(myV);
 	initCam(&myV->cam, myV->xr, myV->yr);
 

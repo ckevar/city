@@ -77,7 +77,6 @@ int task_create(void *init, void *run, void *arg, rt_task_par_t *par, int period
 	par->period 	=	period;
 	par->deadline 	=	deadline;
 	par->priority 	=	priority;
-
 	
 	pthread_attr_init(&myattr);
 

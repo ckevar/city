@@ -3,6 +3,9 @@
 #include "imageprocessing.h"
 #include "utils.h"
 
+#include <stdio.h>
+#include "sensors.h"
+
 void checkStruct(int *in, int *out,
 				const int x,
 				const int y,
@@ -285,6 +288,32 @@ void *fastHarrisRobertCornerDetection(void *void_im) {
 			}
 		}
 	}
-
 	im->ft.N = cornerCounter;
+}
+
+// void conv2(int *im, int *kernel) {
+// }
+
+int verticalLineDetection(img_t *im) {
+	int i, j;
+	int kernel[9];
+	int im2[HRES * VRES];
+	int whites = 0;
+
+	kernel[0] = -1;
+	kernel[1] = 2;
+	kernel[2] = -1;
+
+	for (i = 1; i < VRES - 1; i++) {
+		for (j = 1; j < HRES - 1; j++) {
+			im2[i * HRES + j] = kernel[0] * im->im[(i - 1) * HRES + (j - 1)] + kernel[1] * im->im[(i - 1) * HRES + j] + kernel[2] * im->im[(i - 1) * HRES + j + 1] +  
+								kernel[0] * im->im[i * HRES + (j - 1)] 		+ kernel[1] * im->im[i * HRES + j] 		+ kernel[2] * im->im[i * HRES + j + 1] +
+								kernel[0] * im->im[(i + 1) * HRES + (j - 1)] + kernel[1] * im->im[(i + 1) * HRES + j] + kernel[2] * im->im[(i + 1) * HRES + j + 1];
+			im2[i * HRES + j] = (im2[i * HRES + j] > (2 * WHITE)) ? WHITE : BLACK;
+			whites += im2[i * HRES + j];
+		}
+	}
+	display(im2, 400, 620);
+	// printf("whites %d\n", whites);
+	return whites;
 }

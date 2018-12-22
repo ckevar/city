@@ -158,8 +158,9 @@ void  analyzeCameraFrame(vehicle_t *c, imfeatures_t *imft) {
 
 	RosenfeldPfaltz(bwTL, &imft->TLcenter, 0);
 	fastHarrisRobertCornerDetection(&bwStreet);
-	imft->streetCorner = bwStreet.ft;
-	// display(bwTL, 400, 620);
+	imft->stLines.N = verticalLineDetection(&bwStreet);
+	imft->stCorner = bwStreet.ft;
+	// display(bwStreet.im, 400, 620);
 
 	/** TO BE WRAPPED UP **/
 	/** Read traffic light status **/

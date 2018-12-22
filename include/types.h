@@ -8,7 +8,7 @@
 #define MAX_ELEMNTS	255	// Max num of elements
 
 typedef enum tlState_ {RED_LIGHT, ORANGE_LIGHT, GREEN_LIGHT} tlState_t;
-typedef enum steer_ {STEER_LEFT, STEER_RIGHT, DONT_STEER, TURN_180} steer_t;
+typedef enum steer_ {DONT_STEER = 0, STEER_LEFT, STEER_RIGHT, TURN_180} steer_t;
 
 typedef struct {
 	int x[MAX_ELEMNTS];	// Coordinates along x
@@ -25,7 +25,8 @@ typedef struct {
 	int 	TLstatus;		// the traffic light color
 	int 	TLminDistance;	// distance to the closest traffic light
 	imxy_t	TLcenter;		// Center of the traffic lights, if any
-	imxy_t 	streetCorner;	// Coordinates of corners, if any
+	imxy_t 	stCorner;	// Coordinates of corners, if any
+	imxy_t	stLines;	// Vertical lines features
 } imfeatures_t;
 
 typedef struct { // disjoint-set data structure
@@ -69,10 +70,12 @@ typedef struct {
 	int			yr; 		// real (or granted) position
 	int 		w;			// Vehicle dimensions width
 	int			l;			// Vehicle dimensions length
+	int 		isExecuted;	// steering event
 	double		m;			// Mass
 	double		b;			// Friction Coefficient
 	double 		u;			// Control Law
 	double		theta;		// Angle Orientation
+	double		theta_old;	// Angle Orientation
 	double		vel;		// Current Velocity
 	double		v_1;		// Previous Velocity
 	double		Vr;			// Reference Speed
@@ -85,6 +88,7 @@ typedef struct {
 	cam_t 		cam;		// camera mounted on the vehicle
 	gps_t 		gps;		// gps mounted on the vehicle
 	pidk_t		K;			// cruice controller 
+	steer_t 	turn;		// where to steer
 } vehicle_t;
 
 #endif

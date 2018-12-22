@@ -30,4 +30,6 @@ void RosenfeldPfaltz(int *im, imxy_t *cxy, const int init);
 
 void *fastHarrisRobertCornerDetection(void *void_im);
 
+int verticalLineDetection(img_t *im);
+
 #endif
