@@ -2,6 +2,8 @@
 #include "tlgraphics.h"
 #include "utils.h"
 
+#include <stdio.h>
+
 /*Switches traffic light to col_dest*/
 void switchLight(int* tl_matrix, const int i, const int j,
 				 const int someCoeff, const int col_dest, const int col_mat){
@@ -70,65 +72,6 @@ void switchLight(int* tl_matrix, const int i, const int j,
 	}
 }
 
-/*Draws the initial traffic lights and returns a pointer to them*/
-void initTrafficLights(int* tl_matrix, const int n_blocks_x, 
-						const int n_blocks_y, const int someCoeff,
-						const int street_w, const int block_w){
-	int i, j;
-
-	for(i = 0; i < n_blocks_x*2; i++){
-		for(j = 0; j < n_blocks_y*2; j++){
-
-			tl_matrix[i*n_blocks_y*2 + j] = -1;
-
-			/*corners of the considered block*/
-			int x_right, y_up, x_left, y_low;
-
-			x_right	=	(i/2)*someCoeff + street_w + block_w;
-			y_up	=	(j/2)*someCoeff + street_w;
-			x_left	=	(i/2)*someCoeff + street_w;
-			y_low	=	(j/2)*someCoeff	+ street_w + block_w;
-
-			int color;
-			color = TL_RED;
-
-			/*checking if there are traffic lights in the corners of the block*/
-			if(!i%2 && !j%2){		//top left traffic light
-				if(getpixel(screen, x_left + BL_BORDER + 1, y_up + BL_BORDER + 1) == TL_COL){
-					tl_matrix[i*n_blocks_y*2 + j] = color;
-					circlefill(screen, x_left + BL_BORDER + TL_SIZE/2,
-							y_up + BL_BORDER + TL_SIZE/2, LIGHTS_RAY, color);
-				}
-			}
-			else if(i%2 && !j%2){	//top right traffic light
-				if(getpixel(screen, x_right - BL_BORDER - 1, y_up + BL_BORDER + 1) == TL_COL){
-					color = TL_GREEN;
-					tl_matrix[i*n_blocks_y*2 + j] = color;
-					circlefill(screen, x_right - BL_BORDER - TL_SIZE/2,
-							y_up + BL_BORDER + TL_SIZE/2, LIGHTS_RAY, color);
-				}
-			}
-			else if(!i%2 && j%2){	//bottom left traffic light
-				if(getpixel(screen, x_left + BL_BORDER + 1, y_low - BL_BORDER - 1) == TL_COL){
-					tl_matrix[i*n_blocks_y*2 + j] = color;
-					circlefill(screen, x_left + BL_BORDER + TL_SIZE/2,
-							y_low - BL_BORDER - TL_SIZE/2, LIGHTS_RAY, color);
-				}
-			}
-			else{					//bottom right traffic light
-				if(getpixel(screen, x_right - BL_BORDER - 1, y_low - BL_BORDER - 1) == TL_COL){
-					color = TL_GREEN;
-					tl_matrix[i*n_blocks_y*2 + j] = color;
-					circlefill(screen, x_right - BL_BORDER - TL_SIZE/2,
-							y_low - BL_BORDER - TL_SIZE/2, LIGHTS_RAY, color);
-				}
-			}
-		}
-	}
-
-	return;
-}
-
 /*Draws traffic lights on a block based on the map*/
 void drawTLCabins(int* tl_matrix, const int i, const int j, const int someCoeff){
 
@@ -161,16 +104,33 @@ void drawTLCabins(int* tl_matrix, const int i, const int j, const int someCoeff)
 	bottom_left_corner	=	((getpixel(screen, x_left - STREET_W/2, y_low + STREET_W + 5) == BLOCK_COL)
 								&& (getpixel(screen, x_left - STREET_W - 5, y_low + STREET_W/2) == BLOCK_COL)) ? 0 : 1;
 
+	int t_cross_tleft, t_cross_tright, t_cross_bleft, t_cross_bright;
+
+	t_cross_tleft	=	(!unique_top && unique_left 
+							&& (getpixel(screen, x_left - STREET_W - 5, y_up - STREET_W/2) == STREET_COL)
+							&& (getpixel(screen, x_left - STREET_W/2, y_up - STREET_W - 5) == STREET_COL)) ? 1 : 0;
+	t_cross_tright	=	(!unique_right && unique_top 
+							&& (getpixel(screen, x_right + STREET_W + 5, y_up - STREET_W/2) == STREET_COL)
+							&& (getpixel(screen, x_right + STREET_W/2, y_up - STREET_W - 5) == STREET_COL)) ? 1 : 0;
+	t_cross_bleft	=	(!unique_left && unique_bottom
+							&& (getpixel(screen, x_left - STREET_W - 5, y_low + STREET_W/2) == STREET_COL)
+							&& (getpixel(screen, x_left - STREET_W/2, y_low + STREET_W + 5) == STREET_COL)) ? 1 : 0;
+	t_cross_bright	=	(!unique_bottom && unique_right
+							&& (getpixel(screen, x_right + STREET_W + 5, y_low + STREET_W/2) == STREET_COL)
+							&& (getpixel(screen, x_right + STREET_W/2, y_low + STREET_W + 5) == STREET_COL)) ? 1 : 0;
+
 	int top_right_needed, bottom_right_needed, top_left_needed, bottom_left_needed;
 
-	top_right_needed	=	top_right_corner && unique_top && unique_right;
-	bottom_right_needed	=	bottom_right_corner && unique_bottom && unique_right;
-	top_left_needed		=	top_left_corner && unique_top && unique_left;
-	bottom_left_needed	=	bottom_left_corner && unique_bottom && unique_left;
+	top_right_needed	=	(top_right_corner && unique_top && unique_right) || t_cross_tright;
+	bottom_right_needed	=	(bottom_right_corner && unique_bottom && unique_right) || t_cross_bright;
+	top_left_needed		=	(top_left_corner && unique_top && unique_left) || t_cross_tleft;
+	bottom_left_needed	=	(bottom_left_corner && unique_bottom && unique_left) || t_cross_bleft;
+
+	printf("col: %d, row: %d: t_cross_tleft: %d, t_cross_tright: %d, t_cross_bleft: %d, t_cross_bright: %d\n", 
+		i, j, t_cross_tleft, t_cross_tright, t_cross_bleft, t_cross_bright);
 
 	/*top right of the block*/
 	if(top_right_needed){
-	// if(unique_top && unique_right){
 		if(!(i == N_BLOCKS_X - 1 && j == 0)){
 			rectfill(screen, x_right - TL_SIZE - BL_BORDER, y_up + TL_SIZE + BL_BORDER,
 					x_right - BL_BORDER, y_up + BL_BORDER, TL_COL);

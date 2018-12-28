@@ -66,7 +66,7 @@ void initGridMap(int *tl_matrix, const int street_w, const int block_w){
 		}
 	}
 
-	initTrafficLights(tl_matrix, n_blocks_x, n_blocks_y, someCoeff, street_w, BLOCK_W);	
+	//initTrafficLights(tl_matrix, n_blocks_x, n_blocks_y, someCoeff, street_w, BLOCK_W);	
 }
 
 /*Initializes a random grid with specified dimensions*/
