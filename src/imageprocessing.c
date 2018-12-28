@@ -313,7 +313,5 @@ int verticalLineDetection(img_t *im) {
 			whites += im2[i * HRES + j];
 		}
 	}
-	display(im2, 400, 620);
-	// printf("whites %d\n", whites);
 	return whites;
 }
