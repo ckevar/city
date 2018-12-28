@@ -291,9 +291,6 @@ void *fastHarrisRobertCornerDetection(void *void_im) {
 	im->ft.N = cornerCounter;
 }
 
-// void conv2(int *im, int *kernel) {
-// }
-
 int verticalLineDetection(img_t *im) {
 	int i, j;
 	int kernel[9];

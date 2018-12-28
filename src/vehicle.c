@@ -67,36 +67,31 @@ int steer(vehicle_t *c, imfeatures_t *ft) {
 	switch(c->turn) {
 		case STEER_RIGHT:
 			c->theta += 0.1;
-			c->Vr = 1.0;
-			printf("I am turning right %f \n", c->Vr / (0.1 * 0.033));
 			break;
 
 		case STEER_LEFT:
-			c->theta -= 0.035;
-			c->Vr = 3.0;
+			c->theta -= 0.028;
 			break; 
 
 		case DONT_STEER:
-			printf("I am going straight \n");
 			break;
 
 		case TURN_180:
-			printf("I am turning around \n");
 			break;
 
 		default:		
 			fprintf(stderr, "Something went wrong \n");
 	}
-	// if (abs(c->theta - c->theta_old) > M_PI / 2.0) {
-	if (ft->stLines.N > 500) {
-		fprintf(stderr, "theta %f, theta_old %f\n", c->theta, c->theta_old);
-		c->theta_old = c->theta;
+
+	if (abs(c->theta - c->theta_old) > (M_PI / 2.0 - 0.51)) {
 		c->theta = c->theta_old - M_PI / 2.0;	// this is just for testing STEER_LEFT
 		c->theta_old = c->theta;
 		c->isExecuted = 0;
 	
-	} else 
+	} else { 
 		c->isExecuted = 1;
+		c->Vr = 20;
+	}
 }
 
 void pathPlanner(vehicle_t *c) {
@@ -119,13 +114,15 @@ void pathPlanner(vehicle_t *c) {
 			c->Vr = 10.0;
 	}
 	/************************************/
-	keepCertainDistanceFromBlock(c, 8);	// keep safe distance from side bloks
+	
 	analyzeCameraFrame(c, &imf);
 
 	/******** CROSSROAD RESPONSE ********/
 	if (!c->isExecuted) {
 
-		if ((imf.stCorner.x[0] < 5) && (imf.stCorner.N)) {	
+		keepCertainDistanceFromBlock(c, 10);	// keep safe distance from side bloks
+
+		if ((imf.stCorner.x[0] < 2) && (imf.stCorner.N)) {	// only testing left
 			c->turn = STEER_LEFT;
 			c->isExecuted = 1;
 
@@ -148,10 +145,8 @@ void pathPlanner(vehicle_t *c) {
 		//      printf("choose randomly steer left, right or dont %d\n", rand()%3);
 		//  }
 		}
-	} else {
-		c->isExecuted = steer(c, &imf);
-		// c->Vr = 0.0;
-	}
+	} else steer(c, &imf);
+	
 	/***********************************/
 }
 

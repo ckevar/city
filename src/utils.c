@@ -111,9 +111,6 @@ void initRandomMap(int *tl_matrix){
 		}
 	}
 
-	//initTrafficLights(tl_matrix,N_BLOCKS_X, N_BLOCKS_Y, someCoeff, STREET_W, BLOCK_W);
-
-	//drawStreetLines(street_w, BLOCK_W, someCoeff, n_blocks_x, n_blocks_y);
 }
 
 
