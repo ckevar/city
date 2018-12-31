@@ -57,41 +57,131 @@ void keepCertainDistanceFromBlock(vehicle_t *c, const int safeDistance) {
 			c->xr -= sin(c->theta);
 			c->yr += cos(c->theta);
 		}
-	} else if(c->ds.dsts[RIGHT_DST] <= (SMIN + 1)) {
+	} else if(c->ds.dsts[RIGHT_DST] < SMIN) {
 	 	c->xr += sin(c->theta);
 	 	c->yr -= cos(c->theta);
 	}
 }
 
-int steer(vehicle_t *c, imfeatures_t *ft) {
+void steerLR(vehicle_t *c, imfeatures_t *ft) {
+
+	double u, w;		// Vehicle frames
+	u = c->planner.e.a * cos(c->planner.alpha);	//
+
 	switch(c->turn) {
 		case STEER_RIGHT:
-			c->theta += 0.1;
+			w = c->planner.e.b * (sin(c->planner.alpha) + 1);
+			c->theta += c->planner.angleRes;			// Increases global angle of the vehicle
+			c->planner.alpha += c->planner.angleRes;	// Increases angle of the trajectory
 			break;
 
 		case STEER_LEFT:
-			c->theta -= 0.028;
+			w = c->planner.e.b * (sin(c->planner.alpha) - 1);
+			c->theta -= c->planner.angleRes;			// Decreases global angle of the vehicle
+			c->planner.alpha -= c->planner.angleRes;  	// Decreases angle of the trajectory
 			break; 
 
-		case DONT_STEER:
-			break;
-
 		case TURN_180:
+			// Working ... :'(
 			break;
 
 		default:		
 			fprintf(stderr, "Something went wrong \n");
 	}
 
-	if (abs(c->theta - c->theta_old) > (M_PI / 2.0 - 0.51)) {
-		c->theta = c->theta_old - M_PI / 2.0;	// this is just for testing STEER_LEFT
+	if (fabs(c->planner.alpha) > M_PI / 2.0) {
+
+		if (c->turn == STEER_RIGHT) 
+			c->theta = c->theta_old + M_PI / 2.0;	
+		
+		else if (c->turn == STEER_LEFT) 
+			c->theta = c->theta_old - M_PI / 2.0;	
+		
+		
+		if (c->theta >= 2 * M_PI)	// bringing to the first quadrant  
+			c->theta -= 2 * M_PI;
+
+		else if (c->theta < 0) 		//	bringin to positive angle
+			c->theta += 2 * M_PI;
+		
 		c->theta_old = c->theta;
-		c->isExecuted = 0;
-	
-	} else { 
-		c->isExecuted = 1;
-		c->Vr = 20;
+		c->Vr = V_REF;
+		c->isExecuted = 0;			// Crossroad state is released
+
+	} else {
+		c->xr += round(u * cos(c->theta_old) - w * sin(c->theta_old)); 
+		c->yr += round(u * sin(c->theta_old) + w * cos(c->theta_old));
+
+		c->isExecuted = 1;			// still working on Crossroad state
+		c->Vr = 0;					// Reference velocity 0
 	}
+}
+
+void chooseSteering(vehicle_t *c, imfeatures_t *ft) {
+			
+	c->isExecuted = 1;				// Crossroad state needs to be executed
+
+	switch(ft->stCorner.N) {		// The steering will be chosen according to the number of corners detected
+		case 1: 
+			// In case of the corners of the city (boundary)
+			c->turn = (ft->stCorner.y[0] < (HRES / 2)) ? STEER_LEFT : STEER_RIGHT;
+			break;
+
+		case 2:
+			if (!(ft->stCorner.x[0] - ft->stCorner.x[1])) {      		// T shape street, car comming from center of T
+				c->turn = (rand() % 2) ? STEER_LEFT : STEER_RIGHT;
+
+			} else if ((ft->stCorner.y[0] - ft->stCorner.y[1]) > 0) {	// L shape street
+				c->turn = STEER_RIGHT;
+
+			}  else if ((ft->stCorner.y[0] - ft->stCorner.y[1]) < 0) {	// Inverted L shape street
+				c->turn = STEER_LEFT;
+
+			} else {													// T shape vehicle coming from sides
+				if (ft->stCorner.y[0] < (HRES / 2))         			// Car is comming from right side of the T
+					c->turn = (rand() % 2) ? STEER_LEFT : DONT_STEER;	
+				
+				else													// Car is comming from left side of the T
+					c->turn = (rand() % 2) ? STEER_RIGHT : DONT_STEER;	
+			} 
+
+			break;
+
+		case 4:		
+				c->turn = rand() % 3;									// If it's a full crossrode, it can steering anyway
+				break;
+	}
+
+	c->planner.alpha = 0;												// Starts the angle for the elliptical shape steering
+}
+
+void genTrajectory(vehicle_t *c, imfeatures_t *ft) {
+/* generate basic parameters to steer in an elliptical shape
+ */	
+	int i;
+
+	if (c->turn == STEER_LEFT) {
+		c->planner.e.b = (c->ds.dsts[LEFT_DST] + c->w / 2) / 10;	// Axis along x
+		c->planner.e.a = c->planner.e.b;							// By default if there is no corner bigger than this corner
+
+		for (i = 1; i < ft->stCorner.N; ++i) {						// Iterates to choose the longer corner distance from vehicle
+			if (ft->stCorner.x[i] > ft->stCorner.x[i - 1]) {		// as
+				c->planner.e.a = (ft->stCorner.x[i] - c->w / 2 - 1) / 10;
+			}
+		}
+
+	} else if (c->turn == STEER_RIGHT) {
+		c->planner.e.b = (c->ds.dsts[RIGHT_DST]) / 10;
+		c->planner.e.a = (c->ds.dsts[RIGHT_DST] + c->w * 2.2) / 10;		
+	}			
+}
+
+void steer(vehicle_t *c, imfeatures_t *ft) {
+	if (!c->turn) {	// If not steering
+		if (!ft->stCorner.N)	// Keeps the crossrode state until there is no corners
+			c->isExecuted = 0;	// End of crossroad state
+	}
+	else steerLR(c, ft); // If steering, left or right
 }
 
 void pathPlanner(vehicle_t *c) {
@@ -115,46 +205,30 @@ void pathPlanner(vehicle_t *c) {
 	}
 	/************************************/
 	
-	analyzeCameraFrame(c, &imf);
+	analyzeCameraFrame(c, &imf);	
 
 	/******** CROSSROAD RESPONSE ********/
 	if (!c->isExecuted) {
 
-		keepCertainDistanceFromBlock(c, 10);	// keep safe distance from side bloks
+		keepCertainDistanceFromBlock(c, 10);	// keep safe distance from blocks
 
-		if ((imf.stCorner.x[0] < 2) && (imf.stCorner.N)) {	// only testing left
-			c->turn = STEER_LEFT;
-			c->isExecuted = 1;
-
-			// if (imf.streetCorner.N == 1) {  //  only one corner for the outter region of city
-			// 	turn = (imf.streetCorner.y[0] < (HRES / 2)) ? STEER_LEFT : STEER_RIGHT;
-			// 	isExecuted = 1;
-			// } else								// if the corner is the left, turn left, otherwise turn right
-			// if (imf.streetCorner.N == 2) {
-				// if (!(imf.streetCorner.x[0] - imf.streetCorner.x[1])) {      // if both corners are in the same x, then it can turn left or right 
-					// turn = (rand() % 2) ? STEER_LEFT : STEER_RIGHT;
-				// }
-				// else { 
-				// 	if (imf.streetCorner.y[0] < (HRES / 2))         // if both corners are in the same y, then it goes straight or left
-				// 		turn = (rand() % 2) ? STEER_LEFT : DONT_STEER;
-				// 	else
-				// 		turn = (rand() % 2) ? STEER_RIGHT : DONT_STEER;
-				// }
-			// }
-		//  else if (imf.streetCorner.N > 3) {
-		//      printf("choose randomly steer left, right or dont %d\n", rand()%3);
-		//  }
+		if ((imf.stCorner.x[0] < 2) && (imf.stCorner.N)) {
+			chooseSteering(c, &imf);	// the vehicle will go left, right or straigh
+			genTrajectory(c, &imf);		// generates basic parameters to compute the steering trajectory
 		}
-	} else steer(c, &imf);
+	}
+
+	if (c->isExecuted) 
+		steer(c, &imf);					// steers
 	
 	/***********************************/
 }
 
 
 void *moveVehicle(void *myV) {
-	vehicle_t *c = (vehicle_t *) myV;           // Casting vehicle type
-	double xd;                          		// Taking as double the current position
-	double yd;                         			 // this one too
+	vehicle_t *c = (vehicle_t *) myV;			// Casting vehicle type
+	double xd;									// Taking as double the current position
+	double yd;									// this one too
 	int tmpPosition[8];
 
 	cpyPnts(c->point, tmpPosition, 8);			// copying temporal position 
@@ -168,19 +242,19 @@ void *moveVehicle(void *myV) {
 	yd = c->yr;
 
 	/** PI controller **/
-	c->e = c->Vr - c->v_1;                      // Computes the error
-	c->Ie += c->e;                              // Integrates the error
-	c->u = c->K.Kp * c->e + c->K.Ki * c->Ie;    // computes the control output
+	c->e = c->Vr - c->v_1;						// Computes the error
+	c->Ie += c->e;								// Integrates the error
+	c->u = c->K.Kp * c->e + c->K.Ki * c->Ie;	// computes the control output
 
 	/* Dynamic model
 	 * Vk = (T / (m + bT)) * F + (m / (m + bT))*Vk-1
 	 * Xk = Xk-1 + Vk*T
 	 */
 	c->vel = (c->T / (c->m + c->b * c->T) ) * c->u + (c->m / (c->m + c->b * c->T)) * c->v_1;
-	c->dx =  c->vel * c->T;     // distance covered by c->vel;
+	c->dx = c->vel * c->T;			// distance covered by c->vel;
 
-	xd += c->dx * cos(c->theta);    // New position over x
-	yd += c->dx * sin(c->theta);    // New position over y
+	xd += c->dx * cos(c->theta);	// New position over x
+	yd += c->dx * sin(c->theta);	// New position over y
 
 	c->xr = xd; // New position over x
 	c->yr = yd;
@@ -189,8 +263,6 @@ void *moveVehicle(void *myV) {
 		c->xr = ceil(xd);       // New position over x
 		c->yr = ceil(yd);   
 	} 
-
-	// printf("%d %d \n", c->xr, c->yr);
 
 	rotatePoints(c);                        // compute new points to plot
 	place3BeamsRangefinderOnVehicle(c);     // 
@@ -303,6 +375,7 @@ void *initVehicle(void *c) {
 	myV->v_1 = 0;				// Initializing previous speed
 	myV->isExecuted = 0;		// steering execution event
 	myV->turn = DONT_STEER;		// starts as no init
+	myV->planner.angleRes = M_PI / 32;	// angle resolution for steering
 	/*********************************************/
 
 

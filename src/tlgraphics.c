@@ -126,8 +126,8 @@ void drawTLCabins(int* tl_matrix, const int i, const int j, const int someCoeff)
 	top_left_needed		=	(top_left_corner && unique_top && unique_left) || t_cross_tleft;
 	bottom_left_needed	=	(bottom_left_corner && unique_bottom && unique_left) || t_cross_bleft;
 
-	printf("col: %d, row: %d: t_cross_tleft: %d, t_cross_tright: %d, t_cross_bleft: %d, t_cross_bright: %d\n", 
-		i, j, t_cross_tleft, t_cross_tright, t_cross_bleft, t_cross_bright);
+	// printf("col: %d, row: %d: t_cross_tleft: %d, t_cross_tright: %d, t_cross_bleft: %d, t_cross_bright: %d\n", 
+		// i, j, t_cross_tleft, t_cross_tright, t_cross_bleft, t_cross_bright);
 
 	/*top right of the block*/
 	if(top_right_needed){

@@ -7,13 +7,14 @@
  
 /** RANGEFINDER FEATURES **/
 #define SMIN 3					// min distance of measurement
-#define SMAX 30					// max distance of measurement
+#define SMAX 60					// max distance of measurement
 #define STEP 1 					// distance sensor resolution
 #define RANGEFINDER_4_BEAMS 4	// beams to measure distance
 #define RANGEFINDER_3_BEAMS 3	// beams to measure distance
 #define RIGHT_DST	0		// index of front right distance sensor 
 #define MID_DST		1		// index of front middle distance sensor
 #define LEFT_DST	2 		// index of front left distance sensor
+#define CAM_OFFSET_POS	1	// camera offset position (how far from the car the frames are taken)
 
 /**** REAL-TIME TASKS ****/
 void *getFrame(vehicle_t *myVehicle);

@@ -8,7 +8,7 @@
 #define MAX_ELEMNTS	255	// Max num of elements
 
 typedef enum tlState_ {RED_LIGHT, ORANGE_LIGHT, GREEN_LIGHT} tlState_t;
-typedef enum steer_ {DONT_STEER = 0, STEER_LEFT, STEER_RIGHT, TURN_180} steer_t;
+typedef enum steer_ {DONT_STEER = 0, STEER_LEFT = 1, STEER_RIGHT = 2, TURN_180} steer_t;
 
 typedef struct {
 	int x[MAX_ELEMNTS];	// Coordinates along x
@@ -17,16 +17,27 @@ typedef struct {
 } imxy_t;
 
 typedef struct {
-	int im[HRES * VRES];
-	imxy_t ft;
-} img_t;
+	int im[HRES * VRES];	// The image itself
+	imxy_t ft;				// Features
+} img_t;					// Image type
+
+typedef struct {
+	double a; 				// Major Axis
+	double b;				// Minor Axis
+} ellipse_t;				// Ellipse Type
+
+typedef struct {
+	ellipse_t 	e;			// Ellipcal elements
+	double		alpha;		// angle of the elliptical region (for steering)
+	double		angleRes;	// angle Resolution
+} planner_t;				// Path planner Type
 
 typedef struct {
 	int 	TLstatus;		// the traffic light color
 	int 	TLminDistance;	// distance to the closest traffic light
 	imxy_t	TLcenter;		// Center of the traffic lights, if any
-	imxy_t 	stCorner;	// Coordinates of corners, if any
-	imxy_t	stLines;	// Vertical lines features
+	imxy_t 	stCorner;		// Coordinates of corners, if any
+	imxy_t	stLines;		// Vertical lines features
 } imfeatures_t;
 
 typedef struct { // disjoint-set data structure
@@ -89,6 +100,7 @@ typedef struct {
 	gps_t 		gps;		// gps mounted on the vehicle
 	pidk_t		K;			// cruice controller 
 	steer_t 	turn;		// where to steer
+	planner_t	planner;	// Path planner
 } vehicle_t;
 
 #endif

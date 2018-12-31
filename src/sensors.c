@@ -48,13 +48,12 @@ void *getFrame(vehicle_t *c) {
  */
 	 
 	// Camera res a local variable
-	int offset = 1;             // distance from the car 
 	double cost = cos(c->theta);
 	double sint = sin(c->theta);
 	
 	// Camera global position
-	int x0 = (c->l / 2 + VRES / 2 + offset) * cost + c->xr;
-	int y0 = (c->l / 2 + VRES / 2 + offset) * sint + c->yr;
+	int x0 = (c->l / 2 + VRES / 2 + CAM_OFFSET_POS) * cost + c->xr;
+	int y0 = (c->l / 2 + VRES / 2 + CAM_OFFSET_POS) * sint + c->yr;
  
 	// Taking picture
 	int i, j;
@@ -158,9 +157,7 @@ void  analyzeCameraFrame(vehicle_t *c, imfeatures_t *imft) {
 
 	RosenfeldPfaltz(bwTL, &imft->TLcenter, 0);
 	fastHarrisRobertCornerDetection(&bwStreet);
-	// imft->stLines.N = verticalLineDetection(&bwStreet);
 	imft->stCorner = bwStreet.ft;
-	display(bwStreet.im, 400, 620);
 
 	/** TO BE WRAPPED UP **/
 	/** Read traffic light status **/
