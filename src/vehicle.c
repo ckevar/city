@@ -54,13 +54,19 @@ void rotatePoints(vehicle_t *myV) {
 void keepCertainDistanceFromBlock(vehicle_t *c, const int safeDistance) {
 	if (c->ds.dsts[RIGHT_DST] > safeDistance) {
 		if (c->ds.dsts[RIGHT_DST] < SMAX) {
-			c->xr -= sin(c->theta);
-			c->yr += cos(c->theta);
+			// c->theta = c->theta_old + M_PI / 4.0;
+			c->xr += cos(c->theta_old) - sin(c->theta_old);
+			c->yr += sin(c->theta_old) + cos(c->theta_old);
 		}
-	} else if(c->ds.dsts[RIGHT_DST] < SMIN) {
-	 	c->xr += sin(c->theta);
-	 	c->yr -= cos(c->theta);
-	}
+
+	} else 
+	if(c->ds.dsts[RIGHT_DST] < (SMIN + 5)) {
+	 	c->xr -= cos(c->theta_old) - sin(c->theta_old);
+	 	c->yr -= sin(c->theta_old) + cos(c->theta_old);
+	} 
+	// else {
+	// 	c->theta = c->theta_old;
+	// }
 }
 
 void steerLR(vehicle_t *c, imfeatures_t *ft) {
@@ -224,6 +230,31 @@ void pathPlanner(vehicle_t *c) {
 	/***********************************/
 }
 
+void pidVelController(vehicle_t *c) {
+	c->e = c->Vr - c->v_1;						// Computes the error
+	c->Ie += c->e;								// Integrates the error
+	c->u = c->K.Kp * c->e + c->K.Ki * c->Ie;	// computes the control output
+}
+
+void dynamicCruiseModel(vehicle_t *c, double *xd, double *yd) {
+	/* Dynamic model
+	 * Vk = (T / (m + bT)) * F + (m / (m + bT))*Vk-1
+	 * Xk = Xk-1 + Vk*T
+	 */
+	c->vel = (c->T / (c->m + c->b * c->T) ) * c->u + (c->m / (c->m + c->b * c->T)) * c->v_1;
+	c->dx = c->vel * c->T;			// distance covered by c->vel;
+
+	*xd += c->dx * cos(c->theta);	// New position over x
+	*yd += c->dx * sin(c->theta);	// New position over y
+
+	c->xr = *xd; // New position over x
+	c->yr = *yd;
+
+	if (c->theta <= M_PI / 2) { //  
+		c->xr = ceil(*xd);       // New position over x
+		c->yr = ceil(*yd);   
+	} 	
+}
 
 void *moveVehicle(void *myV) {
 	vehicle_t *c = (vehicle_t *) myV;			// Casting vehicle type
@@ -242,27 +273,10 @@ void *moveVehicle(void *myV) {
 	yd = c->yr;
 
 	/** PI controller **/
-	c->e = c->Vr - c->v_1;						// Computes the error
-	c->Ie += c->e;								// Integrates the error
-	c->u = c->K.Kp * c->e + c->K.Ki * c->Ie;	// computes the control output
+	pidVelController(c);
 
-	/* Dynamic model
-	 * Vk = (T / (m + bT)) * F + (m / (m + bT))*Vk-1
-	 * Xk = Xk-1 + Vk*T
-	 */
-	c->vel = (c->T / (c->m + c->b * c->T) ) * c->u + (c->m / (c->m + c->b * c->T)) * c->v_1;
-	c->dx = c->vel * c->T;			// distance covered by c->vel;
-
-	xd += c->dx * cos(c->theta);	// New position over x
-	yd += c->dx * sin(c->theta);	// New position over y
-
-	c->xr = xd; // New position over x
-	c->yr = yd;
-
-	if (c->theta <= M_PI / 2) { //  
-		c->xr = ceil(xd);       // New position over x
-		c->yr = ceil(yd);   
-	} 
+	/* Dynamic model */
+	dynamicCruiseModel(c, &xd, &yd);
 
 	rotatePoints(c);                        // compute new points to plot
 	place3BeamsRangefinderOnVehicle(c);     // 
@@ -276,9 +290,10 @@ void *moveVehicle(void *myV) {
 	
 		/** DRAWING NEW POSITION **/
 		polygon(screen, 4, c->point, c->color); 		// Draw new position
+		circlefill(screen, c->xr - c->l/4 * cos(c->theta), c->yr - c->l/4 * sin(c->theta), c->w / 2 - 3, BLACK);
 		pthread_mutex_unlock(&screen_lock);
 	}
-	// c->v_1 = sqrt((c->xr - x_old) * (c->xr - x_old) + (c->yr - y_old) * (c->yr - y_old)) / c->T;
+
 	c->v_1 = c->vel;
 }
  
@@ -288,6 +303,8 @@ char isAvailableThisColor(int color) {
 	if (color == TL_RED) 	return 0;
 	if (color == TL_GREEN)	return 0;
 	if (color == STREET_COL) return 0;
+	if (color == BLACK) 	return 0;
+	if (color == 14) return 0;	// yellow, too clear
 	return 1;
 }
  

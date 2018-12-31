@@ -16,9 +16,8 @@
 #define LEFT_DST	2 		// index of front left distance sensor
 #define CAM_OFFSET_POS	1	// camera offset position (how far from the car the frames are taken)
 
-/**** REAL-TIME TASKS ****/
 void *getFrame(vehicle_t *myVehicle);
-/************************/
+
 void getRangefinder(dstsens_t *dst, const int beam);
  
 /* Inits camera features
