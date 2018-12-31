@@ -74,9 +74,9 @@ int main(int argc, char const *argv[])
 		if (scan == KEY_SPACE && carCounter < MAX_CARS) {
 			// task_create(initVehicle, moveVehicle, &cars[carCounter], &carsPrms[carCounter], 40, 40, 2);
 			// carCounter++;
-			vehicle_t myCar;
-			rt_task_par_t vehicle_prm;
-			task_create(initVehicle, moveVehicle, &myCar, &vehicle_prm, 40, 40, 2);
+			// vehicle_t myCar;
+			// rt_task_par_t vehicle_prm;
+			// task_create(initVehicle, moveVehicle, &myCar, &vehicle_prm, 40, 40, 2);
 			printf("you pressed N %d\n", carCounter++);
 		}
 	} while(scan != KEY_ESC);
