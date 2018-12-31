@@ -11,6 +11,9 @@
  
 pthread_mutex_t screen_lock;
 
+int idVehicle = 1;				// Vehicle ID
+pthread_mutex_t id_lock;		// mutex for vehicle id
+
 void rotatePoints(vehicle_t *myV) {
 
 	/* 	Car - Reference Frame
@@ -379,6 +382,11 @@ void *initVehicle(void *c) {
 									 */
 
 	/*************** Car features ***************/
+	pthread_mutex_lock(&id_lock);
+	myV->id = idVehicle;		// Assigns a unique vehicle id;
+	idVehicle++;				// increases the id for the next vehicle
+	pthread_mutex_unlock(&id_lock);
+
 	myV->l = VEHICLE_LENGTH;	// Length of the vehicle
 	myV->w = VEHICLE_WIDTH;		// Width of vehicle
 	myV->m = MIN_MASS_CAR + rand() % (MAX_MASS_CAR - MIN_MASS_CAR);

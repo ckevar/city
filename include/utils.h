@@ -44,6 +44,9 @@
 #define	BLACK	0
 #define	WHITE	15
 
+/** MAX CARS ALLOWED **/
+#define MAX_CARS	2
+
 /* Inits grid map */
 void initGridMap(int *tl_matrix, const int street_w, const int block_w);
 

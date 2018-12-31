@@ -6,6 +6,9 @@
 #include "task.h"
 #include "timemanagement.h"
 
+/** THREAD ENDERS **/
+extern int ShouldISuicide;
+
 /*Checks if there's a deadline miss*/
 int deadline_miss(rt_task_par_t * parameters){
 	struct timespec now;
@@ -39,10 +42,9 @@ void wait_for_activation(rt_task_par_t * parameters){
 void *periodic_task(void* arg) {
 	rt_task_par_t * prm = (rt_task_par_t *) arg;
 	set_activation(prm);
-	// it runs this, but doenst run the second one
 	prm->init(prm->arg); 			// Inits the ARG entity
 
-	while (1) {
+	while (!ShouldISuicide) {
 
 		prm->run(prm->arg);			// Runs
 
@@ -51,6 +53,7 @@ void *periodic_task(void* arg) {
 			
 		wait_for_activation(prm);
 	}
+	printf("i am comminting suicide \n");
 }
 
 int task_create(void *init, void *run, void *arg, rt_task_par_t *par, int period, int deadline, int priority){

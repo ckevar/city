@@ -76,6 +76,7 @@ typedef struct {
 } pidk_t;
 
 typedef struct {
+	int 		id;
 	int			color;
 	int			xr;	 		// real (or granted) position
 	int			yr; 		// real (or granted) position

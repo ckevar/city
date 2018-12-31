@@ -289,7 +289,6 @@ void *fastHarrisRobertCornerDetection(void *void_im) {
 		}
 	}
 	im->ft.N = cornerCounter;
-	display(im->im, 400, 620);
 }
 
 int verticalLineDetection(img_t *im) {
