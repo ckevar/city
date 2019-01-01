@@ -201,6 +201,7 @@ void pathPlanner(vehicle_t *c) {
 
 	/***** FRONT DISTANCE RESPONSE *****/
 	if (c->ds.dsts[MID_DST] < 10) c->Vr = 0;	// Minimun Distance before hit wall from front
+	else c->Vr = V_REF;							// it needs to return going again
 	/***********************************/
 
 	/****** TRAFFIC LIGHT REPONSE ******/
@@ -339,7 +340,7 @@ void auxMoveX(vehicle_t * myV, const int i, const int sgn) {
 	rotatePoints(myV);	// only translation is needed
 }
  
-void placeCarInStreet(vehicle_t *myV, const int axis) {
+void placeCarInStreet(vehicle_t *myV, const char axis) {
 	/* Axis: Reference initial orientation 
 	 * 0: 90 deg, 1: 270deg, 2: 0 deg, 3: 180deg
 	 */
@@ -365,12 +366,31 @@ void placeCarInStreet(vehicle_t *myV, const int axis) {
 	}
 }
  
-void *initVehicle(void *c) {
-	/* inits vehicle variables
-	 * code:
-	 */
-	vehicle_t * myV = (vehicle_t *) c; // casting to vehicle type
-	int theta;						/* Reference initial, orientation 
+void initCarFeatures(vehicle_t *c) {
+
+	pthread_mutex_lock(&id_lock);
+	c->id = idVehicle;		// Assigns a unique vehicle id;
+	idVehicle++;				// increases the id for the next vehicle
+	pthread_mutex_unlock(&id_lock);
+
+	c->l = VEHICLE_LENGTH;	// Length of the vehicle
+	c->w = VEHICLE_WIDTH;		// Width of vehicle
+	c->m = MIN_MASS_CAR + rand() % (MAX_MASS_CAR - MIN_MASS_CAR);
+	c->b = MIN_FRICTION_CAR + rand() % (MAX_FRICTION_CAR - MIN_FRICTION_CAR);
+	c->K.Kp = PID_KP;			// Proportional Gain
+	c->K.Ki = PID_KI;			// Integral gain
+	c->dx = 0.0;				// covered distance 
+	c->Vr = V_REF;				// Velocity set Point (could be random per each car)
+	c->T  = 0.033;				// Period
+	c->Ie = 0;					// Integrating the error
+	c->v_1 = 0;					// Initializing previous speed
+	c->isExecuted = 0;			// steering execution event
+	c->turn = DONT_STEER;		// starts as no init
+	c->planner.angleRes = M_PI / 32;	// angle resolution for steering
+}
+
+char generateRandomPositionAroundCity(vehicle_t *c) {
+	char theta;						/* Value to return. Reference initial, orientation 
 									 * 0: 90 deg, 1: 270deg, 2: 0 deg, 3: 180deg
 									 */
 
@@ -380,81 +400,67 @@ void *initVehicle(void *c) {
 	int ULorBR = rand() % 2;		/* it shall generate the car Upper or Buttom or
 									 * Left or Right, according the result of XorY
 									 */
-
-	/*************** Car features ***************/
-	pthread_mutex_lock(&id_lock);
-	myV->id = idVehicle;		// Assigns a unique vehicle id;
-	idVehicle++;				// increases the id for the next vehicle
-	pthread_mutex_unlock(&id_lock);
-
-	myV->l = VEHICLE_LENGTH;	// Length of the vehicle
-	myV->w = VEHICLE_WIDTH;		// Width of vehicle
-	myV->m = MIN_MASS_CAR + rand() % (MAX_MASS_CAR - MIN_MASS_CAR);
-	myV->b = MIN_FRICTION_CAR + rand() % (MAX_FRICTION_CAR - MIN_FRICTION_CAR);
-	myV->K.Kp = PID_KP;			// Proportional Gain
-	myV->K.Ki = PID_KI;			// Integral gain
-	myV->dx = 0.0;				// covered distance 
-	myV->Vr = V_REF;			// Velocity set Point (could be random per each car)
-	myV->T 	= 0.033;			// Period
-	myV->Ie = 0;				// Integrating the error
-	myV->v_1 = 0;				// Initializing previous speed
-	myV->isExecuted = 0;		// steering execution event
-	myV->turn = DONT_STEER;		// starts as no init
-	myV->planner.angleRes = M_PI / 32;	// angle resolution for steering
-	/*********************************************/
-
-
-	// GENERATE RANDOM POSITION
 	if (XorY) {
-		/* Along X axis and (by default) Top Screen
-		 */
-		myV->yr = STREET_W;						// Initial position along y axis
-		myV->theta = M_PI / 2.0; 				// 90 deg
+		/* Along X axis and (by default) Top Screen */
+		c->yr = STREET_W;						// Initial position along y axis
+		c->theta = M_PI / 2.0; 					// 90 deg
 		theta = 0;								// Flag representeng 90 deg
 
 		if (!ULorBR) {
-			/* Bottom Side of screen
-			 */
+			/* Bottom Side of screen */
 			theta = 1;
 			nb = (H - STREET_W) / blkLen;		// Number of blocks along y axis
-			myV->theta += M_PI;					// 270 	deg
-			myV->yr += nb * blkLen - STREET_W;
+			c->theta += M_PI;					// 270 	deg
+			c->yr += nb * blkLen - STREET_W;
 			/*					|________ where counting from bottom
 			 */
 		}
 		nb = (W - STREET_W) / blkLen;			// Number of blocks along x axis
-		do { myV->xr = STREET_W + rand()%(nb * blkLen);	/* Random position between first corner
+		do { c->xr = STREET_W + rand()%(nb * blkLen);	/* Random position between first corner
 														 * up to rightest corner of the rightest block
 														 */
-		} while(getpixel(screen, myV->xr, myV->yr) != STREET_COL);
+		} while(getpixel(screen, c->xr, c->yr) != STREET_COL);
 
 	} else {
-		/* Along Y axis and (by default) left screen 
-		 */
-		myV->xr = STREET_W;						// Initial position along x axis
-		myV->theta = 0.0;						// 0 deg
+		/* Along Y axis and (by default) left screen */
+		c->xr = STREET_W;						// Initial position along x axis
+		c->theta = 0.0;							// 0 deg
 		theta = 2;								// Flag representing 0 deg
 
 		if (!ULorBR) {
-			/* Right Side of Screen
-			 */
+			/* Right Side of Screen */
 			theta = 3;
 			nb = (W - STREET_W) / blkLen;		// Number of blocks along x axis
-			myV->theta += M_PI; 				// 180 deg
-			myV->xr += nb * blkLen - STREET_W;	// Rightest corner of the rightest block
+			c->theta += M_PI; 					// 180 deg
+			c->xr += nb * blkLen - STREET_W;	// Rightest corner of the rightest block
 			/*					|________ where counting from bottom
 			 */
 		}
 
 		nb = (H - STREET_W) / blkLen;			// Number of blocks along y axis
 
-		do { myV->yr = STREET_W + rand()%(nb * blkLen); 	/* Random position between
+		do { c->yr = STREET_W + rand()%(nb * blkLen); 	/* Random position between
 															 * first corner til last corner
 															 */
-		} while(getpixel(screen, myV->xr, myV->yr) != STREET_COL);
+		} while(getpixel(screen, c->xr, c->yr) != STREET_COL);
 	}
 
-	myV->theta_old = myV->theta;							// this is steering purposes
+	c->theta_old = c->theta;							// this is steering purposes
+	return theta;
+}
+
+void *initVehicle(void *c) {
+	/* inits vehicle variables
+	 * code:
+	 */
+	vehicle_t * myV = (vehicle_t *) c; // casting to vehicle type
+	char quadrant;
+
+	/** Car features **/
+	initCarFeatures(myV);
+
+	/** Generate random position **/
+	quadrant = generateRandomPositionAroundCity(myV);
 
 	// Random color but choose an available one
 	do {
@@ -464,7 +470,7 @@ void *initVehicle(void *c) {
 	// Rotate the points to plot
 	rotatePoints(myV);
 
-	placeCarInStreet(myV, theta);
+	placeCarInStreet(myV, quadrant);
 	place3BeamsRangefinderOnVehicle(myV);
 	initCam(&myV->cam, myV->xr, myV->yr);
 
