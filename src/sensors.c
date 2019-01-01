@@ -147,10 +147,10 @@ void  analyzeCameraFrame(vehicle_t *c, imfeatures_t *imft) {
 			// Isolate color of streets
 			if (tmp == STREET_COL)
 				bwStreet.im[tmpPos] = WHITE;
-			
-			else if (tmp = BLOCK_COL)
+			else
+			// else if (tmp == BLOCK_COL)
 				bwStreet.im[tmpPos] = BLACK;
-
+			
 			// Isolate color of Traffic Lights
 			bwTL[tmpPos] = (tmp == TL_COL) ? WHITE : BLACK;
 
