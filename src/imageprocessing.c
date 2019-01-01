@@ -268,7 +268,7 @@ void *fastHarrisRobertCornerDetection(void *void_im) {
 	 *	---------
 	 *	| b | c |
 	 *  ---------
-	 *  if P pixel at i,j is a corner then (P - c) has to be different than (a - b)
+	 *  if pixel P at i,j is a corner then (P - c) has to be different than (a - b)
 	 */
 	img_t *im = (img_t *)void_im;
 	int i, j;						// iterators 

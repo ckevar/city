@@ -53,7 +53,6 @@ void *periodic_task(void* arg) {
 			
 		wait_for_activation(prm);
 	}
-	printf("i am comminting suicide \n");
 }
 
 int task_create(void *init, void *run, void *arg, rt_task_par_t *par, int period, int deadline, int priority){

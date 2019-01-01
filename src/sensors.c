@@ -145,7 +145,11 @@ void  analyzeCameraFrame(vehicle_t *c, imfeatures_t *imft) {
 			tmp = c->cam.image[tmpPos];
 
 			// Isolate color of streets
-			bwStreet.im[tmpPos] = (tmp != STREET_COL) ? BLACK : WHITE;
+			if (tmp == STREET_COL)
+				bwStreet.im[tmpPos] = WHITE;
+			
+			else if (tmp = BLOCK_COL)
+				bwStreet.im[tmpPos] = BLACK;
 
 			// Isolate color of Traffic Lights
 			bwTL[tmpPos] = (tmp == TL_COL) ? WHITE : BLACK;
@@ -158,6 +162,7 @@ void  analyzeCameraFrame(vehicle_t *c, imfeatures_t *imft) {
 	RosenfeldPfaltz(bwTL, &imft->TLcenter, 0);
 	fastHarrisRobertCornerDetection(&bwStreet);
 	imft->stCorner = bwStreet.ft;
+	display(bwStreet.im, c->id * 100, 620);
 
 	/** TO BE WRAPPED UP **/
 	/** Read traffic light status **/
