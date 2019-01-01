@@ -125,6 +125,12 @@ void getRangefinder(dstsens_t *dst, const int beam) {
 	}
 }
 
+char isStreetColor(const int tmp) {
+	return 	(tmp == TL_COL) || (tmp == TL_GREEN) ||
+			(tmp == TL_YELLOW) 	|| (tmp == TL_RED) 	||
+			(tmp == BLOCK_COL) || (tmp == BLACK);  
+}
+
 void  analyzeCameraFrame(vehicle_t *c, imfeatures_t *imft) {
 /* Analyzes the camera frame looking for a traffic light
  * code:
@@ -133,11 +139,10 @@ void  analyzeCameraFrame(vehicle_t *c, imfeatures_t *imft) {
 	int minim = HRES * VRES;	// to get the closest traffic light
 	img_t bwStreet;
 	int bwTL[minim];			// bw image isolating the traffic light cabine
+	int bwStreetTmp[minim];			// bw image isolating the traffic light cabine
 	int tmp;					// temporal color of the image
 	int tmpPos;
  
-	pthread_t 	tid0;
-
 	for (i = 0; i < VRES; ++i) {
 		for (j = 0; j < HRES; ++j) {
 
@@ -145,12 +150,9 @@ void  analyzeCameraFrame(vehicle_t *c, imfeatures_t *imft) {
 			tmp = c->cam.image[tmpPos];
 
 			// Isolate color of streets
-			if (tmp == STREET_COL)
-				bwStreet.im[tmpPos] = WHITE;
-			else
-			// else if (tmp == BLOCK_COL)
-				bwStreet.im[tmpPos] = BLACK;
-			
+			bwStreet.im[tmpPos] = isStreetColor(tmp) ? BLACK : WHITE;
+			// bwStreetTmp[tmpPos] = isStreetColor(tmp) ? BLACK : WHITE;
+		
 			// Isolate color of Traffic Lights
 			bwTL[tmpPos] = (tmp == TL_COL) ? WHITE : BLACK;
 
@@ -158,11 +160,11 @@ void  analyzeCameraFrame(vehicle_t *c, imfeatures_t *imft) {
 	}
 
 	/* Morphology ops will go here */
-
+	// delation(bwStreetTmp, bwStreet.im);
 	RosenfeldPfaltz(bwTL, &imft->TLcenter, 0);
 	fastHarrisRobertCornerDetection(&bwStreet);
 	imft->stCorner = bwStreet.ft;
-	display(bwStreet.im, c->id * 100, 620);
+	// display(bwStreet.im, c->id * 100, 620);
 
 	/** TO BE WRAPPED UP **/
 	/** Read traffic light status **/

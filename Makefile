@@ -1,4 +1,4 @@
-CC=gcc
+CC=gcc 
 # libs third party: pthread/allegro/math
 LIBS=-pthread `allegro-config --libs` -lm
 

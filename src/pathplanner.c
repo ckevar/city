@@ -148,7 +148,6 @@ void steer(vehicle_t *c, imfeatures_t *ft) {
 void pathPlanner(vehicle_t *c) {
 	/* To plan the future path for the car
 	 */
-
 	imfeatures_t imf;
 
 	/***** FRONT DISTANCE RESPONSE *****/
@@ -183,4 +182,5 @@ void pathPlanner(vehicle_t *c) {
 	if (c->isExecuted) 
 		steer(c, &imf);					// steers
 	/***********************************/
+	
 }

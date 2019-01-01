@@ -114,8 +114,10 @@ void *moveVehicle(void *myV) {
 	
 		/** DRAWING NEW POSITION **/
 		polygon(screen, 4, c->point, c->color); 		// Draw new position
-		circlefill(screen, c->xr - c->l/4 * cos(c->theta), c->yr - c->l/4 * sin(c->theta), c->w / 2 - 3, BLACK);
+		circlefill(screen, c->xr - c->l/4 * cos(c->theta), c->yr - c->l/4 * sin(c->theta), c->w / 2 - 3, CAR_RUNNING);
 		pthread_mutex_unlock(&screen_lock);
+	} else {
+		circlefill(screen, c->xr - c->l/4 * cos(c->theta), c->yr - c->l/4 * sin(c->theta), c->w / 2 - 3, CAR_STOPPED);		
 	}
 
 	c->v_1 = c->vel;
