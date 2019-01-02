@@ -39,14 +39,16 @@ void wait_for_activation(rt_task_par_t * parameters){
 void *periodic_task(void* arg) {
 	rt_task_par_t * prm = (rt_task_par_t *) arg;
 	set_activation(prm);
-	prm->init(prm->arg); 			// Inits the ARG entity
+	prm->init(prm->arg); 		// Inits the ARG entity
 
-	prm->run(prm->arg);			// Runs
+	while(1){
+		prm->run(prm->arg);			// Runs
 
-	if(deadline_miss(prm))
-		fprintf(stderr, "[WARNING:] Deadline Miss\n");
+		if(deadline_miss(prm))
+			fprintf(stderr, "[WARNING:] Deadline Miss\n");
 			
-	wait_for_activation(prm);
+		wait_for_activation(prm);
+	}
 
 }
 
