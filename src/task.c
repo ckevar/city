@@ -31,15 +31,14 @@ void set_activation(rt_task_par_t * parameters){
 void wait_for_activation(rt_task_par_t * parameters){
 	clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME,
 	 					&(parameters->at), NULL);		//sleeps until next activation/
-	time_add_ms(&(parameters->at), parameters->period);	//next activation time = old act time + period
-	time_add_ms(&(parameters->dl), parameters->period);	//next deadline = old deadline + period
+	set_activation(parameters);
 }
 
 /*Periodic task management*/
 void *periodic_task(void* arg) {
 	rt_task_par_t * prm = (rt_task_par_t *) arg;
 	set_activation(prm);
-	prm->init(prm->arg); 		// Inits the ARG entity
+	prm->init(prm->arg); 			// Inits the ARG entity
 
 	while(1){
 		prm->run(prm->arg);			// Runs
