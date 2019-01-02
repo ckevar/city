@@ -118,7 +118,9 @@ void *moveVehicle(void *myV) {
 		pthread_mutex_unlock(&screen_lock);
 	} else {
 		/** RED LIGHTS display at the back of the car when it's stopped **/
-		circlefill(screen, c->xr - c->l/4 * cos(c->theta), c->yr - c->l/4 * sin(c->theta), c->w / 2 - 3, CAR_STOPPED);		
+		pthread_mutex_lock(&screen_lock);
+		circlefill(screen, c->xr - c->l/4 * cos(c->theta), c->yr - c->l/4 * sin(c->theta), c->w / 2 - 3, CAR_STOPPED);
+		pthread_mutex_unlock(&screen_lock);	
 	}
 
 	c->v_1 = c->vel;
@@ -302,3 +304,11 @@ void *initVehicle(void *c) {
 	pthread_mutex_unlock(&screen_lock);
 }
  
+void *termVehicle(void* c){
+	vehicle_t *car = (vehicle_t*) c;
+
+	/*Erasing the car fromt the street*/
+	// pthread_mutex_lock(&screen_lock);
+	polygon(screen, 4, car->point, STREET_COL);
+	// pthread_mutex_unlock(&screen_lock);
+}

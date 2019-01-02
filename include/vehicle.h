@@ -41,5 +41,10 @@ void brakeVehicle(vehicle_t *myVehicle);
 void accelerateVehicle(vehicle_t *myVehicle);
 /* 
  */
+
+void *termVehicle(void* c);
+/*	termination function to be called before killing
+	the periodic task
+*/
  
 #endif

@@ -55,7 +55,7 @@ void *periodic_task(void* arg) {
 	}
 }
 
-int task_create(void *init, void *run, void *arg, rt_task_par_t *par, int period, int deadline, int priority){
+int task_create(void *init, void *run, void *term, void *arg, rt_task_par_t *par, int period, int deadline, int priority){
 
 	pthread_attr_t myattr;
 	struct sched_param mypar;
@@ -75,6 +75,7 @@ int task_create(void *init, void *run, void *arg, rt_task_par_t *par, int period
 	par->dmiss 		=	0;
 	par->init 		= 	init;
 	par->run 		=	run;
+	par->terminate	=	term;
 	par->arg		=	arg;
 	par->period 	=	period;
 	par->deadline 	=	deadline;
@@ -97,4 +98,18 @@ int task_create(void *init, void *run, void *arg, rt_task_par_t *par, int period
 		fprintf(stderr, "Error while creating a new task! %d\n", tret);
 
 	return tret;
+}
+
+/*	Terminates a periodic task that is executing
+*	It first sends a signal to the thread to stop it
+*	and then calls a termination function 	
+*/
+int task_terminate(rt_task_par_t *par){
+	int ret;
+	ret = pthread_cancel(par->tid);	/* trying to stop the thread */
+	if(!ret){
+		pthread_join(par->tid, NULL);
+		par->terminate(par->arg);	/* termination function */
+	}
+	return ret;
 }

@@ -56,7 +56,7 @@ int main(int argc, char const *argv[])
 	tl_manager_arg man_arg;
 	man_arg.tl_matrix = tl_matrix;
 	rt_task_par_t tl_manager_par;
-	task_create(&tl_init, &tl_manager, &man_arg, &tl_manager_par, 4000, 1000, 3);
+	task_create(&tl_init, &tl_manager, NULL, &man_arg, &tl_manager_par, 4000, 1000, 3);
 	/***************************************/
 
 	/******* Under Test Vehicle-Task *******/
@@ -71,15 +71,16 @@ int main(int argc, char const *argv[])
 
 			/** If N key is pressed a new car will be created only if MAX is not reached **/
 			if (scan == KEY_N && carCounter < MAX_CARS) {
-				task_create(initVehicle, moveVehicle, &cars[carCounter], &carsPrms[carCounter], 40, 40, 2);
+				task_create(initVehicle, moveVehicle, termVehicle, &cars[carCounter], &carsPrms[carCounter], 40, 40, 2);
 				carCounter++;
 			}
 
-			/** if D key is pressed a car will be removed off simulation. 
-			    SUGGESTION:i think it's a good idea to remove the last one **/
+			/** if D key is pressed a car will be removed off simulation **/
 			if (scan == KEY_D && carCounter > 0) {
-				// TODO: Kill a car thread
-				carCounter--;
+				if(task_terminate(&carsPrms[carCounter - 1]))
+					fprintf(stderr, "Error while stopping a vehicle task\n");
+				else
+					carCounter--;
 			}
 		}
 
