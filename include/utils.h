@@ -51,12 +51,6 @@
 #define CAR_RUNNING	14
 #define CAR_STOPPED	makecol(255,50,50)
 
-/* Inits grid map */
-void initGridMap(int *tl_matrix, const int street_w, const int block_w);
-
-/* Inits a random map */
-void initRandomMap(int* tl_matrix);
-
 /* copy int elements from source to destination */
 void cpyPnts(int *source, int *destination, const int N);
 

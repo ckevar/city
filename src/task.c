@@ -6,9 +6,6 @@
 #include "task.h"
 #include "timemanagement.h"
 
-/** THREAD ENDERS **/
-extern int ShouldISuicide;
-
 /*Checks if there's a deadline miss*/
 int deadline_miss(rt_task_par_t * parameters){
 	struct timespec now;
@@ -44,15 +41,13 @@ void *periodic_task(void* arg) {
 	set_activation(prm);
 	prm->init(prm->arg); 			// Inits the ARG entity
 
-	while (!ShouldISuicide) {
+	prm->run(prm->arg);			// Runs
 
-		prm->run(prm->arg);			// Runs
-
-		if(deadline_miss(prm))
-			fprintf(stderr, "[WARNING:] Deadline Miss\n");
+	if(deadline_miss(prm))
+		fprintf(stderr, "[WARNING:] Deadline Miss\n");
 			
-		wait_for_activation(prm);
-	}
+	wait_for_activation(prm);
+
 }
 
 int task_create(void *init, void *run, void *term, void *arg, rt_task_par_t *par, int period, int deadline, int priority){
@@ -106,10 +101,11 @@ int task_create(void *init, void *run, void *term, void *arg, rt_task_par_t *par
 */
 int task_terminate(rt_task_par_t *par){
 	int ret;
-	ret = pthread_cancel(par->tid);	/* trying to stop the thread */
+	ret = pthread_cancel(par->tid);		/* trying to stop the thread */
 	if(!ret){
 		pthread_join(par->tid, NULL);
-		par->terminate(par->arg);	/* termination function */
+		if(par->terminate != NULL)
+			par->terminate(par->arg);	/* termination function */
 	}
 	return ret;
 }

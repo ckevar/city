@@ -2,38 +2,14 @@
 #include <allegro.h>
 #include <pthread.h>
 
+#include "graphics.h"
 #include "types.h"
 #include "vehicle.h"
 #include "tlmanager.h"
 #include "utils.h"
 #include "task.h"
-#include <unistd.h>
 
 extern pthread_mutex_t screen_lock;
-extern int ShouldISuicide;
-
-void *dummy(void* arg){
-	int* p;
-	p = (int*) arg;
-	int x;
-	x = *p;
-	printf("I am Dummy %d\n", x);
-	printf("I am a Dumb\n");
-}
-
-void initialize_graphics(int *tl_matrix)
-{
-	set_color_depth(N_COL);
-
-	set_gfx_mode(GFX_AUTODETECT_WINDOWED, W, H, 0, 0);
-
-	clear_to_color(screen, STREET_COL);
-	install_keyboard();
-	
-
-	/*Initializing a simple random map*/
-	initRandomMap(tl_matrix);
-}
 
 int tl_matrix[N_BLOCKS_X*2 * N_BLOCKS_Y*2];
 
@@ -44,8 +20,6 @@ int main(int argc, char const *argv[])
 	char scan;
 	char carCounter = 0;
 	char isPressed = 1;
-
-	ShouldISuicide = 0;
 
 	srand (time(NULL));
 	allegro_init();
@@ -87,7 +61,11 @@ int main(int argc, char const *argv[])
 	} while(scan != KEY_ESC);
 	/***************************************/
 
-	ShouldISuicide = 1;		// to kill every periodic tasks
+	/* Terminates all threads */
+	int i;
+	for(i = 0; i < carCounter; i++){
+		while(task_terminate(&carsPrms[i])){}
+	}
 
 	allegro_exit();
 

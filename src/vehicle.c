@@ -307,7 +307,7 @@ void *initVehicle(void *c) {
 void *termVehicle(void* c){
 	vehicle_t *car = (vehicle_t*) c;
 
-	/*Erasing the car fromt the street*/
+	/*Erasing the car from the street*/
 	pthread_mutex_lock(&screen_lock);
 	polygon(screen, 4, car->point, STREET_COL);
 	pthread_mutex_unlock(&screen_lock);
