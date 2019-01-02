@@ -31,7 +31,8 @@ void set_activation(rt_task_par_t * parameters){
 void wait_for_activation(rt_task_par_t * parameters){
 	clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME,
 	 					&(parameters->at), NULL);		//sleeps until next activation
-	set_activation(parameters);							//sets next activation time
+	time_add_ms(&(parameters->at), parameters->period);	//next activation time = old act time + period
+	time_add_ms(&(parameters->dl), parameters->period);	//next deadline = old deadline + period
 }
 
 /*Periodic task management*/
@@ -40,7 +41,7 @@ void *periodic_task(void* arg) {
 	set_activation(prm);
 	prm->init(prm->arg); 			// Inits the ARG entity
 
-	while(1){
+	while(!(prm->killMyself)){
 		prm->run(prm->arg);			// Runs
 
 		if(deadline_miss(prm))
@@ -49,6 +50,8 @@ void *periodic_task(void* arg) {
 		wait_for_activation(prm);
 	}
 
+	if(prm->terminate != NULL)
+		prm->terminate(prm->arg);	/* termination function */
 }
 
 int task_create(void *init, void *run, void *term, void *arg, rt_task_par_t *par, int period, int deadline, int priority){
@@ -69,6 +72,7 @@ int task_create(void *init, void *run, void *term, void *arg, rt_task_par_t *par
 
 	/*setting up the parameters of the task from input*/
 	par->dmiss 		=	0;
+	par->killMyself	=	0;
 	par->init 		= 	init;
 	par->run 		=	run;
 	par->terminate	=	term;
@@ -97,16 +101,11 @@ int task_create(void *init, void *run, void *term, void *arg, rt_task_par_t *par
 }
 
 /*	Terminates a periodic task that is executing
-*	It first sends a signal to the thread to stop it
+*	It first ssignals to the thread to suicide through
+*	its real time parameters struct
 *	and then calls a termination function 	
 */
-int task_terminate(rt_task_par_t *par){
-	int ret;
-	ret = pthread_cancel(par->tid);		/* trying to stop the thread */
-	if(!ret){
-		pthread_join(par->tid, NULL);
-		if(par->terminate != NULL)
-			par->terminate(par->arg);	/* termination function */
-	}
-	return ret;
+void task_terminate(rt_task_par_t *par){
+	par->killMyself = 1;	/* tells the thread to suicide */
+	pthread_join(par->tid, NULL);
 }

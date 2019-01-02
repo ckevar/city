@@ -68,6 +68,11 @@ void initRandomMap(int *tl_matrix){
 
 }
 
+void initStatDisplay(){
+	rectfill(screen, 0, H, W, N_BLOCKS_Y*BLOCK_W + (N_BLOCKS_Y + 1)*STREET_W, STAT_BG);
+	rectfill(screen, N_BLOCKS_X*BLOCK_W + (N_BLOCKS_X + 1)*STREET_W, 0, W, H, STAT_BG);
+}
+
 
 void initialize_graphics(int *tl_matrix)
 {
@@ -81,6 +86,7 @@ void initialize_graphics(int *tl_matrix)
 
 	/*Initializing a simple random map*/
 	initRandomMap(tl_matrix);
+	initStatDisplay();
 }
 
 /*Draws street lines on the map*/

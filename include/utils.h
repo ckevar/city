@@ -51,6 +51,10 @@
 #define CAR_RUNNING	14
 #define CAR_STOPPED	makecol(255,50,50)
 
+/* STATUS DISPLAY COLORS */
+#define STAT_BG		makecol(43, 46, 73)
+#define INFO_COL	15
+
 /* copy int elements from source to destination */
 void cpyPnts(int *source, int *destination, const int N);
 

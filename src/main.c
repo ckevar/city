@@ -11,15 +11,14 @@
 
 extern pthread_mutex_t screen_lock;
 
-int tl_matrix[N_BLOCKS_X*2 * N_BLOCKS_Y*2];
-
 int main(int argc, char const *argv[])
 {
 	vehicle_t 		cars[MAX_CARS];
 	rt_task_par_t 	carsPrms[MAX_CARS];
-	char scan;
-	char carCounter = 0;
-	char isPressed = 1;
+	char	scan;
+	char 	carCounter = 0;
+	char 	isPressed = 1;
+	int 	tl_matrix[N_BLOCKS_X*2 * N_BLOCKS_Y*2];
 
 	srand (time(NULL));
 	allegro_init();
@@ -51,10 +50,8 @@ int main(int argc, char const *argv[])
 
 			/** if D key is pressed a car will be removed off simulation **/
 			if (scan == KEY_D && carCounter > 0) {
-				if(task_terminate(&carsPrms[carCounter - 1]))
-					fprintf(stderr, "Error while stopping a vehicle task\n");
-				else
-					carCounter--;
+				task_terminate(&carsPrms[carCounter - 1]);
+				carCounter--;
 			}
 		}
 
@@ -64,7 +61,7 @@ int main(int argc, char const *argv[])
 	/* Terminates all threads */
 	int i;
 	for(i = 0; i < carCounter; i++){
-		while(task_terminate(&carsPrms[i])){}
+		task_terminate(&carsPrms[i]);
 	}
 
 	allegro_exit();

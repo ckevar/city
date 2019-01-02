@@ -22,6 +22,7 @@ typedef struct {
 	void (*terminate)(void *a);	/* task termination function */
 	void *arg;					/* argument of the function */
 	// void *t_arg;				/* argument of the termination function */
+	int killMyself;				/* variable that shows if the thread should suicide */
 } rt_task_par_t;
 
 /*	Creates a task executing the first setup function (init)
@@ -33,6 +34,6 @@ int task_create(void *init, void *run, void *term, void *arg, rt_task_par_t *par
 
 /*	Terminates a periodic task that is executing
 */
-int task_terminate(rt_task_par_t *par);
+void task_terminate(rt_task_par_t *par);
 
 #endif
