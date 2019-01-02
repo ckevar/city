@@ -275,16 +275,23 @@ void *fastHarrisRobertCornerDetection(void *void_im) {
 	int dx, dy;						// derivatives
 	int cornerCounter = 0;			// number of corners
 
-	for (i = 1; i < VRES - 1; i++) {
-		for (j = 1; j < HRES - 1; j++) {
+	for (i = 1; i < VRES - 3; i++) {
+		for (j = 1; j < HRES - 3; j++) {
 
 			dx = abs(im->im[i * HRES + j] - im->im[(i + 1) * HRES + j + 1]); // P - c 
 			dy = abs(im->im[i * HRES + j + 1] - im->im[(i + 1) * HRES + j]); // a - b
 
 			if (dx != dy) {	// if they are different then pixel at i,j is a corner
-				im->ft.x[cornerCounter] = i; 
-				im->ft.y[cornerCounter] = j;
-				cornerCounter++;
+				/* re-checking some pixels further increases robusticity*/
+				dx = abs(im->im[i * HRES + j] - im->im[(i + 3) * HRES + j + 3]); // P - c 
+				dy = abs(im->im[i * HRES + j + 3] - im->im[(i + 3) * HRES + j]); // a - b
+
+				if (dx != dy) {
+					im->ft.x[cornerCounter] = i; 
+					im->ft.y[cornerCounter] = j;
+					cornerCounter++;
+				}
+
 			}
 		}
 	}

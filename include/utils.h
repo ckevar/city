@@ -49,7 +49,7 @@
 
 /** CAR LIGHTS **/
 #define CAR_RUNNING	14
-#define CAR_STOPPED	12
+#define CAR_STOPPED	makecol(255,50,50)
 
 /* Inits grid map */
 void initGridMap(int *tl_matrix, const int street_w, const int block_w);

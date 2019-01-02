@@ -117,6 +117,7 @@ void *moveVehicle(void *myV) {
 		circlefill(screen, c->xr - c->l/4 * cos(c->theta), c->yr - c->l/4 * sin(c->theta), c->w / 2 - 3, CAR_RUNNING);
 		pthread_mutex_unlock(&screen_lock);
 	} else {
+		/** RED LIGHTS display at the back of the car when it's stopped **/
 		circlefill(screen, c->xr - c->l/4 * cos(c->theta), c->yr - c->l/4 * sin(c->theta), c->w / 2 - 3, CAR_STOPPED);		
 	}
 

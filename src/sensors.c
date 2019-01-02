@@ -159,8 +159,6 @@ void  analyzeCameraFrame(vehicle_t *c, imfeatures_t *imft) {
 		}
 	}
 
-	/* Morphology ops will go here */
-	// delation(bwStreetTmp, bwStreet.im);
 	RosenfeldPfaltz(bwTL, &imft->TLcenter, 0);
 	fastHarrisRobertCornerDetection(&bwStreet);
 	imft->stCorner = bwStreet.ft;
