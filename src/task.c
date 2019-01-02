@@ -30,8 +30,8 @@ void set_activation(rt_task_par_t * parameters){
 /*Suspends the calling thread until next activation*/
 void wait_for_activation(rt_task_par_t * parameters){
 	clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME,
-	 					&(parameters->at), NULL);		//sleeps until next activation/
-	set_activation(parameters);
+	 					&(parameters->at), NULL);		//sleeps until next activation
+	set_activation(parameters);							//sets next activation time
 }
 
 /*Periodic task management*/
