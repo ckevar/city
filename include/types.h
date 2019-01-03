@@ -27,10 +27,15 @@ typedef struct {
 } ellipse_t;				// Ellipse Type
 
 typedef struct {
+	// ellipse_t 	e;			// Ellipcal elements
 	ellipse_t 	e;			// Ellipcal elements
+	double 		w0;
 	double		alpha;		// angle of the elliptical region (for steering)
 	double		angleRes;	// angle Resolution
+	int tmpX;
+	int tmpY;
 } planner_t;				// Path planner Type
+
 
 typedef struct {
 	int 	TLstatus;		// the traffic light color

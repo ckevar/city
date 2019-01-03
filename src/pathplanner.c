@@ -21,23 +21,36 @@ void keepCertainDistanceFromBlock(vehicle_t *c, const int safeDistance) {
 	} 
 }
 
-
 void steerLR(vehicle_t *c, imfeatures_t *ft) {
 
 	double u, w;		// Vehicle frames
-	u = c->planner.e.a * cos(c->planner.alpha);	//
+	// u = c->planner.e.a * cos(c->planner.alpha);	//
+	int translation_inverse;
+	c->planner.e.a += 1;
+	u = c->planner.e.a;	//
+
 
 	switch(c->turn) {
 		case STEER_RIGHT:
-			w = c->planner.e.b * (sin(c->planner.alpha) + 1);
-			c->theta += c->planner.angleRes;			// Increases global angle of the vehicle
-			c->planner.alpha += c->planner.angleRes;	// Increases angle of the trajectory
+			// w = c->planner.e.b * (sin(c->planner.alpha) + 1);
+			// c->theta += c->planner.angleRes;			// Increases global angle of the vehicle
+			// c->planner.alpha += c->planner.angleRes;	// Increases angle of the trajectory
+			
+			w = -50.0 / u;
+			c->planner.alpha = atan((w - c->planner.w0) / u);
+			c->theta = c->theta_old - (c->planner.alpha);	// Decreases global angle of the vehicle
+			translation_inverse = TRANSLATION_INVX_RIGHT;
 			break;
 
 		case STEER_LEFT:
-			w = c->planner.e.b * (sin(c->planner.alpha) - 1);
-			c->theta -= c->planner.angleRes;			// Decreases global angle of the vehicle
-			c->planner.alpha -= c->planner.angleRes;  	// Decreases angle of the trajectory
+			// w = c->planner.e.b * (sin(c->planner.alpha) - 1);
+			// c->theta -= c->planner.angleRes;			// Decreases global angle of the vehicle
+			// c->planner.alpha -= c->planner.angleRes;	// Decreases angle of the trajectory
+			
+			w = 50.0 / u;
+			c->planner.alpha = atan((w - c->planner.w0) / u);
+			c->theta = c->theta_old - (c->planner.alpha);	// Decreases global angle of the vehicle
+			translation_inverse = TRANSLATION_INVX_LEFT;
 			break; 
 
 		case TURN_180:
@@ -48,14 +61,14 @@ void steerLR(vehicle_t *c, imfeatures_t *ft) {
 			fprintf(stderr, "Something went wrong \n");
 	}
 
-	if (fabs(c->planner.alpha) > M_PI / 2.0) {
-
+	// if (fabs(c->theta - c->theta_old) > M_PI / 2.0) {
+	if (fabs(c->planner.alpha) > (M_PI / 2 - M_PI / 1024)) {
+		
 		if (c->turn == STEER_RIGHT) 
 			c->theta = c->theta_old + M_PI / 2.0;	
 		
 		else if (c->turn == STEER_LEFT) 
 			c->theta = c->theta_old - M_PI / 2.0;	
-		
 		
 		if (c->theta >= 2 * M_PI)	// bringing to the first quadrant  
 			c->theta -= 2 * M_PI;
@@ -64,15 +77,16 @@ void steerLR(vehicle_t *c, imfeatures_t *ft) {
 			c->theta += 2 * M_PI;
 		
 		c->theta_old = c->theta;
-		c->Vr = V_REF;
+		c->Vr = 0.0;
 		c->isExecuted = 0;			// Crossroad state is released
 
 	} else {
-		c->xr += round(u * cos(c->theta_old) - w * sin(c->theta_old)); 
-		c->yr += round(u * sin(c->theta_old) + w * cos(c->theta_old));
-
+		c->xr = c->planner.tmpX + round((u + translation_inverse) * cos(c->theta_old) - w * sin(c->theta_old)); 
+		c->yr = c->planner.tmpY + round((u + translation_inverse) * sin(c->theta_old) + w * cos(c->theta_old));
+		// putpixel(screen, c->planner.tmpX + c->xr, c->planner.tmpY + c->yr, TL_GREEN);
 		c->isExecuted = 1;			// still working on Crossroad state
 		c->Vr = 0;					// Reference velocity 0
+		printf("%f %f %f %d %d\n", u, w, c->planner.alpha * 180 / M_PI, c->planner.tmpX + c->xr, c->planner.tmpY + c->yr);
 	}
 }
 
@@ -84,10 +98,12 @@ void chooseSteering(vehicle_t *c, imfeatures_t *ft) {
 		case 1: 
 			// In case of the corners of the city (boundary)
 			c->turn = (ft->stCorner.y[0] < (HRES / 2)) ? STEER_LEFT : STEER_RIGHT;
+			// c->turn = STEER_RIGHT;
 			break;
 
 		case 2:
 			if (!(ft->stCorner.x[0] - ft->stCorner.x[1])) {      		// T shape street, car comming from center of T
+				// c->turn = STEER_RIGHT;
 				c->turn = (rand() % 2) ? STEER_LEFT : STEER_RIGHT;
 
 			} else if ((ft->stCorner.y[0] - ft->stCorner.y[1]) > 0) {	// L shape street
@@ -102,11 +118,13 @@ void chooseSteering(vehicle_t *c, imfeatures_t *ft) {
 				
 				else													// Car is comming from left side of the T
 					c->turn = (rand() % 2) ? STEER_RIGHT : DONT_STEER;	
+					// c->turn = STEER_RIGHT;	
 			} 
 
 			break;
 
 		case 4:		
+				// c->turn = STEER_RIGHT;									// If it's a full crossrode, it can steering anyway
 				c->turn = rand() % 3;									// If it's a full crossrode, it can steering anyway
 				break;
 	}
@@ -134,7 +152,34 @@ void genEllipticalTrajectory(vehicle_t *c, imfeatures_t *ft) {
 	} else if (c->turn == STEER_RIGHT) {
 		c->planner.e.b = (c->ds.dsts[RIGHT_DST]) * HPDivisor;
 		c->planner.e.a = (c->ds.dsts[RIGHT_DST] + c->w * HPMultiplier) * HPDivisor;		
-	}			
+	}
+}
+
+void genKInvX(vehicle_t *c, imfeatures_t *ft) {
+	int i;
+	double HPDivisor = 1.0 / 10.0;	//
+	double HPMultiplier = 2.2;	// Degree of freedom for turning right
+
+
+	if (c->turn == STEER_LEFT) {
+		c->planner.e.b = (c->ds.dsts[LEFT_DST] + c->w / 2) * HPDivisor;	// Axis along x
+		c->planner.e.a = -TRANSLATION_INVX_LEFT;
+
+		// for (i = 1; i < ft->stCorner.N; ++i) {						// Iterates to choose the longer corner distance from vehicle
+		// 	if (ft->stCorner.x[i] > ft->stCorner.x[i - 1]) {		// as
+		// 		c->planner.e.a = (ft->stCorner.x[i] - c->w / 2 - 1) * HPDivisor;
+		// 	}
+		// }
+
+	} else if (c->turn == STEER_RIGHT) {
+		c->planner.e.a = -TRANSLATION_INVX_RIGHT;
+		c->planner.e.b = (c->ds.dsts[RIGHT_DST]) * HPDivisor;
+		// c->planner.e.a = (c->ds.dsts[RIGHT_DST] + c->w * HPMultiplier) * HPDivisor;		
+	}
+
+	c->planner.w0 = c->planner.e.b;
+	c->planner.tmpX = c->xr;
+	c->planner.tmpY = c->yr;
 }
 
 void steer(vehicle_t *c, imfeatures_t *ft) {
@@ -151,36 +196,40 @@ void pathPlanner(vehicle_t *c) {
 	imfeatures_t imf;
 
 	/***** FRONT DISTANCE RESPONSE *****/
-	if (c->ds.dsts[MID_DST] < 10) c->Vr = 0;	// Minimun Distance before hit wall from front
-	else c->Vr = V_REF;							// it needs to return going again
-	/***********************************/
+	if (c->ds.dsts[MID_DST] < 10) 
+		c->Vr = 0;	// Minimun Distance before hit wall from front
+		/***********************************/
+	else { 
+		c->Vr = V_REF;							// it needs to return going again
 
-	/****** TRAFFIC LIGHT REPONSE ******/
-	if (imf.TLcenter.N) {        		// No traffic lights detected
-		if (imf.TLminDistance < 9)
-			if ((imf.TLstatus == TL_RED) || (imf.TLstatus == TL_YELLOW))
-				c->Vr = 0.0;
+		/****** TRAFFIC LIGHT REPONSE ******/
+		if (imf.TLcenter.N) {        		// No traffic lights detected
+			if (imf.TLminDistance < 9)
+				if ((imf.TLstatus == TL_RED) || (imf.TLstatus == TL_YELLOW))
+					c->Vr = 0.0;
 
-		else if (imf.TLstatus == TL_GREEN)
-			c->Vr = 10.0;
-	}
-	/************************************/
-	
-	analyzeCameraFrame(c, &imf);	
-
-	/******** CROSSROAD RESPONSE ********/
-	if (!c->isExecuted) {
-
-		keepCertainDistanceFromBlock(c, 10);	// keep safe distance from blocks
-
-		if ((imf.stCorner.x[0] < 2) && (imf.stCorner.N)) {
-			chooseSteering(c, &imf);	// the vehicle will go left, right or straigh
-			genEllipticalTrajectory(c, &imf);		// generates basic parameters to compute the steering trajectory
+			else if (imf.TLstatus == TL_GREEN)
+				c->Vr = V_REF;
 		}
-	}
+		/************************************/
+		
+		analyzeCameraFrame(c, &imf);	
 
-	if (c->isExecuted) 
-		steer(c, &imf);					// steers
-	/***********************************/
-	
+		/******** CROSSROAD RESPONSE ********/
+		if (!c->isExecuted) {
+
+			keepCertainDistanceFromBlock(c, 10);	// keep safe distance from blocks
+
+			if ((imf.stCorner.x[0] < 2) && (imf.stCorner.N)) {
+				chooseSteering(c, &imf);	// the vehicle will go left, right or straigh
+				genKInvX(c, &imf);		// generates basic parameters to compute the steering trajectory
+				// genEllipticalTrajectory(c, &imf);		// generates basic parameters to compute the steering trajectory
+			}
+		}
+
+		if (c->isExecuted) 
+			steer(c, &imf);					// steers
+		/***********************************/
+	}
 }
+

@@ -19,4 +19,3 @@ char cmpPnts(int *A, int *B, const int N) {
 	return 0;
 }
 
-

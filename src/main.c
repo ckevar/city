@@ -60,7 +60,7 @@ int main(int argc, char const *argv[])
 
 	/* Terminates all threads */
 	int i;
-	for(i = 0; i < carCounter; i++){
+	for(i = 0; i < carCounter; i++) {
 		task_terminate(&carsPrms[i]);
 	}
 
