@@ -5,6 +5,7 @@
 
 #include "task.h"
 #include "timemanagement.h"
+#include "graphics.h"
 
 /*Checks if there's a deadline miss*/
 int deadline_miss(rt_task_par_t * parameters){
@@ -44,8 +45,10 @@ void *periodic_task(void* arg) {
 	while(!(prm->killMyself)){
 		prm->run(prm->arg);			// Runs
 
-		if(deadline_miss(prm))
+		if(deadline_miss(prm)){
 			fprintf(stderr, "[WARNING:] Deadline Miss\n");
+			drawNDmiss();
+		}
 			
 		wait_for_activation(prm);
 	}

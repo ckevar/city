@@ -10,6 +10,8 @@
 #include "task.h"
 
 extern pthread_mutex_t screen_lock;
+extern pthread_mutex_t dmiss_lock;
+extern int deadline_misses;
 
 int main(int argc, char const *argv[])
 {
@@ -47,6 +49,7 @@ int main(int argc, char const *argv[])
 			if (scan == KEY_N && carCounter < MAX_CARS) {
 				task_create(initVehicle, moveVehicle, termVehicle, &cars[carCounter], &carsPrms[carCounter], 40, 40, 2);
 				carCounter++;
+				drawNCars(carCounter);
 			}
 
 			/** if D key is pressed a car will be removed off simulation **/
@@ -64,6 +67,7 @@ int main(int argc, char const *argv[])
 					carsPrms[j] = carsPrms[carCounter];
 					cars[j] = cars[carCounter];
 				}
+				drawNCars(carCounter);
 			}
 		}
 

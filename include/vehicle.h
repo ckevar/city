@@ -16,7 +16,7 @@
 // CONTROLLER PARAMETERS
 #define	PID_KP	30000.0
 #define	PID_KI	2000.0
-#define	V_REF	25.0
+#define	V_REF	20.0
 
  
 /***** Real-Time Task *****/

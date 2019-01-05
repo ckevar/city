@@ -1,7 +1,12 @@
 #include <allegro.h>
+#include <stdio.h>
+#include <pthread.h>
 
 #include "utils.h"
 #include "tlgraphics.h"
+
+pthread_mutex_t dmiss_lock;
+int deadline_misses;
 
 /*Initializes a regular grid with specified dimensions*/
 void initGridMap(int *tl_matrix, const int street_w, const int block_w){
@@ -68,11 +73,68 @@ void initRandomMap(int *tl_matrix){
 
 }
 
+/* Prints the specified number of existing cars in the map */
+void drawNCars(int x){
+	char s[2];
+	int color;
+
+	snprintf(s, sizeof(int), "%d", x);
+
+	if(x <= (MAX_CARS/3))
+		color = INFO_GREEN;
+	else if(x <= (2*MAX_CARS/3))
+		color = WHITE;
+	else
+		color = INFO_RED;
+
+	rectfill(screen, (N_BLOCKS_X*BLOCK_W + (N_BLOCKS_X+ 1)*STREET_W) + 50, 47,
+		(N_BLOCKS_X*BLOCK_W + (N_BLOCKS_X+ 1)*STREET_W) + 70, 60, STAT_BG);
+	textout_centre_ex(screen, font, s, (N_BLOCKS_X*BLOCK_W + (N_BLOCKS_X+ 1)*STREET_W) + 60,
+		50, color, -1);
+}
+
+/* Sets up the display and interface*/
 void initStatDisplay(){
+	// char* desc, insert, delete;
+	const char *desc	= "WELCOME IN CITY, A SIMULATION PROGRAM THAT AIMS TO SIMULATE A URBAN AREA.";
+	const char *insert	= "TO ADD A NEW CAR, PRESS 'n'.";
+	const char *delete	= "TO DELETE AN EXISTING CAR, PRESS 'd'.";
+	const char *nCars1	= "NUMBER OF";
+	const char *nCars2	= "CARS";
+	const char *nCars3	= "IN THE CITY:";
+	const char *nDmiss1	= "NUMBER OF";
+	const char *nDmiss2 = "DEADLINE";
+	const char *nDmiss3	= "MISSES:";
+	int dmiss = 0;
+	char s[4];
+
 	rectfill(screen, 0, H, W, N_BLOCKS_Y*BLOCK_W + (N_BLOCKS_Y + 1)*STREET_W, STAT_BG);
 	rectfill(screen, N_BLOCKS_X*BLOCK_W + (N_BLOCKS_X + 1)*STREET_W, 0, W, H, STAT_BG);
+
 	textout_centre_ex(screen, font, "CITY", (N_BLOCKS_X*BLOCK_W + (N_BLOCKS_X+ 1)*STREET_W)/2,
 		(N_BLOCKS_Y*BLOCK_W + (N_BLOCKS_Y+1)*STREET_W+5), INFO_COL, -1);
+	textout_centre_ex(screen, font, desc, (N_BLOCKS_X*BLOCK_W + (N_BLOCKS_X+ 1)*STREET_W)/2,
+		(N_BLOCKS_Y*BLOCK_W + (N_BLOCKS_Y+1)*STREET_W+15), INFO_COL, -1);
+	textout_ex(screen, font, insert, 20, (N_BLOCKS_Y*BLOCK_W + (N_BLOCKS_Y+1)*STREET_W+35), INFO_GREEN, -1);
+	textout_ex(screen, font, delete, 20, (N_BLOCKS_Y*BLOCK_W + (N_BLOCKS_Y+1)*STREET_W+45), INFO_RED, -1);
+
+	textout_centre_ex(screen, font, nCars1, (N_BLOCKS_X*BLOCK_W + (N_BLOCKS_X+ 1)*STREET_W) + 60,
+		20, INFO_COL, -1);
+	textout_centre_ex(screen, font, nCars2, (N_BLOCKS_X*BLOCK_W + (N_BLOCKS_X+ 1)*STREET_W) + 60,
+		30, INFO_COL, -1);
+	textout_centre_ex(screen, font, nCars3, (N_BLOCKS_X*BLOCK_W + (N_BLOCKS_X+ 1)*STREET_W) + 60,
+		40, INFO_COL, -1);
+	textout_centre_ex(screen, font, nDmiss1, (N_BLOCKS_X*BLOCK_W + (N_BLOCKS_X+ 1)*STREET_W) + 60,
+		130, INFO_COL, -1);
+	textout_centre_ex(screen, font, nDmiss2, (N_BLOCKS_X*BLOCK_W + (N_BLOCKS_X+ 1)*STREET_W) + 60,
+		140, INFO_COL, -1);
+	textout_centre_ex(screen, font, nDmiss3, (N_BLOCKS_X*BLOCK_W + (N_BLOCKS_X+ 1)*STREET_W) + 60,
+		150, INFO_COL, -1);
+
+	drawNCars(0);
+	snprintf(s, sizeof(int), "%d", dmiss);
+	textout_centre_ex(screen, font, s, (N_BLOCKS_X*BLOCK_W + (N_BLOCKS_X+ 1)*STREET_W) + 60,
+		160, INFO_GREEN, -1);
 }
 
 
@@ -91,29 +153,34 @@ void initialize_graphics(int *tl_matrix)
 	initStatDisplay();
 }
 
-/*Draws street lines on the map*/
-void drawStreetLines(const int street_w, const int block_w, const int someCoeff,
-						const int n_blocks_x, const int n_blocks_y){
-	
-	line(screen, street_w / 2, street_w / 2,
-				n_blocks_x*block_w + n_blocks_x*street_w + street_w / 2, 
-				street_w / 2, SL_COL);
-	line(screen, street_w / 2, street_w / 2, street_w / 2,
-				n_blocks_y*block_w + n_blocks_y*street_w + street_w / 2, SL_COL);
-	line(screen, n_blocks_x*block_w + n_blocks_x*street_w + street_w / 2, 
-				street_w / 2,
-				n_blocks_x*block_w + n_blocks_x*street_w + street_w / 2,
-				n_blocks_y*block_w + n_blocks_y*street_w + street_w / 2, SL_COL);
-	line(screen, street_w / 2,
-				n_blocks_y*block_w + n_blocks_y*street_w + street_w / 2,
-	 			n_blocks_x*block_w + n_blocks_x*street_w + street_w / 2, 
-	 			n_blocks_y*block_w + n_blocks_y*street_w + street_w / 2, SL_COL);
 
-	int i, j;
-	for(i = 0; i < n_blocks_x; i++){
-		for(j = 0; j < n_blocks_y; j++){
-			/*vertical lines*/
-			//if(getpixel(screen, i*someCoeff + street_w / 2, ))
-		}
-	}
+/* Prints the number of deadline-misses in the interface */
+void drawNDmiss(){
+
+	char s[4];
+	int color;
+
+	rectfill(screen, (N_BLOCKS_X*BLOCK_W + (N_BLOCKS_X+ 1)*STREET_W) + 50, 157,
+		(N_BLOCKS_X*BLOCK_W + (N_BLOCKS_X+ 1)*STREET_W) + 70, 170, STAT_BG);
+
+	/* Critical section on the shared var deadline_misses */
+	pthread_mutex_lock(&dmiss_lock);
+
+
+	deadline_misses++;
+
+	if(deadline_misses <= 10)
+		color = INFO_GREEN;
+	else if(deadline_misses <= 20)
+		color = WHITE;
+	else
+		color = INFO_RED;
+
+	snprintf(s, sizeof(int), "%d", deadline_misses);
+	textout_centre_ex(screen, font, s, (N_BLOCKS_X*BLOCK_W + (N_BLOCKS_X+ 1)*STREET_W) + 60,
+		160, color, -1);
+
+
+	pthread_mutex_unlock(&dmiss_lock);
+	/* End of critical section */
 }
