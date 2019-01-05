@@ -54,19 +54,8 @@ int main(int argc, char const *argv[])
 
 			/** if D key is pressed a car will be removed off simulation **/
 			if (scan == KEY_D && carCounter > 0) {
-				int j;
-				j = 0;
-				while((j < (carCounter - 1)) && !(cars[j].isStopped)){
-					j++;
-					printf("j = %d\n", j);
-					printf("vel = %f\n", cars[j].vel);
-				}
-				task_terminate(&carsPrms[j]);
+				task_terminate(&carsPrms[carCounter - 1]);
 				carCounter--;
-				if(j != carCounter){
-					carsPrms[j] = carsPrms[carCounter];
-					cars[j] = cars[carCounter];
-				}
 				drawNCars(carCounter);
 			}
 		}
