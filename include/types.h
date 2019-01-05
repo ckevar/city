@@ -88,6 +88,7 @@ typedef struct {
 	int 		w;			// Vehicle dimensions width
 	int			l;			// Vehicle dimensions length
 	int 		isExecuted;	// steering event
+	int 		isStopped;	// indicates wether the car is stopped or not
 	double		m;			// Mass
 	double		b;			// Friction Coefficient
 	double 		u;			// Control Law

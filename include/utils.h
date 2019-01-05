@@ -53,7 +53,7 @@
 
 /* STATUS DISPLAY COLORS */
 #define STAT_BG		makecol(43, 46, 73)
-#define INFO_COL	15
+#define INFO_COL	makecol(247,196,12)
 
 /* copy int elements from source to destination */
 void cpyPnts(int *source, int *destination, const int N);

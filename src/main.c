@@ -19,6 +19,7 @@ int main(int argc, char const *argv[])
 	char 	carCounter = 0;
 	char 	isPressed = 1;
 	int 	tl_matrix[N_BLOCKS_X*2 * N_BLOCKS_Y*2];
+	int 	i;
 
 	srand (time(NULL));
 	allegro_init();
@@ -50,8 +51,19 @@ int main(int argc, char const *argv[])
 
 			/** if D key is pressed a car will be removed off simulation **/
 			if (scan == KEY_D && carCounter > 0) {
-				task_terminate(&carsPrms[carCounter - 1]);
+				int j;
+				j = 0;
+				while((j < (carCounter - 1)) && !(cars[j].isStopped)){
+					j++;
+					printf("j = %d\n", j);
+					printf("vel = %f\n", cars[j].vel);
+				}
+				task_terminate(&carsPrms[j]);
 				carCounter--;
+				if(j != carCounter){
+					carsPrms[j] = carsPrms[carCounter];
+					cars[j] = cars[carCounter];
+				}
 			}
 		}
 
@@ -59,7 +71,6 @@ int main(int argc, char const *argv[])
 	/***************************************/
 
 	/* Terminates all threads */
-	int i;
 	for(i = 0; i < carCounter; i++) {
 		task_terminate(&carsPrms[i]);
 	}

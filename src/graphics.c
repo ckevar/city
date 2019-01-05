@@ -71,6 +71,8 @@ void initRandomMap(int *tl_matrix){
 void initStatDisplay(){
 	rectfill(screen, 0, H, W, N_BLOCKS_Y*BLOCK_W + (N_BLOCKS_Y + 1)*STREET_W, STAT_BG);
 	rectfill(screen, N_BLOCKS_X*BLOCK_W + (N_BLOCKS_X + 1)*STREET_W, 0, W, H, STAT_BG);
+	textout_centre_ex(screen, font, "CITY", (N_BLOCKS_X*BLOCK_W + (N_BLOCKS_X+ 1)*STREET_W)/2,
+		(N_BLOCKS_Y*BLOCK_W + (N_BLOCKS_Y+1)*STREET_W+5), INFO_COL, -1);
 }
 
 

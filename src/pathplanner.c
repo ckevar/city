@@ -86,7 +86,7 @@ void steerLR(vehicle_t *c, imfeatures_t *ft) {
 		// putpixel(screen, c->planner.tmpX + c->xr, c->planner.tmpY + c->yr, TL_GREEN);
 		c->isExecuted = 1;			// still working on Crossroad state
 		c->Vr = 0;					// Reference velocity 0
-		printf("%f %f %f %d %d\n", u, w, c->planner.alpha * 180 / M_PI, c->planner.tmpX + c->xr, c->planner.tmpY + c->yr);
+		// printf("%f %f %f %d %d\n", u, w, c->planner.alpha * 180 / M_PI, c->planner.tmpX + c->xr, c->planner.tmpY + c->yr);
 	}
 }
 

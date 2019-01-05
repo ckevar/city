@@ -108,6 +108,7 @@ void *moveVehicle(void *myV) {
 	
 	if (cmpPnts(tmpPosition, c->point, 8)) { 	// If the points are the same as the previous one, 
 												// the car wont be reploted.
+		c->isStopped = 0;	//the car is moving
 		/** DELETING PREVIOUS POSITION **/
 		pthread_mutex_lock(&screen_lock);           	// Locking shared resource screen
 		polygon(screen, 4, tmpPosition, STREET_COL); 	// Delete previous position
@@ -117,6 +118,7 @@ void *moveVehicle(void *myV) {
 		circlefill(screen, c->xr - c->l/4 * cos(c->theta), c->yr - c->l/4 * sin(c->theta), c->w / 2 - 3, CAR_RUNNING);
 		pthread_mutex_unlock(&screen_lock);
 	} else {
+		c->isStopped = 1;	//the car is still
 		/** RED LIGHTS display at the back of the car when it's stopped **/
 		pthread_mutex_lock(&screen_lock);
 		circlefill(screen, c->xr - c->l/4 * cos(c->theta), c->yr - c->l/4 * sin(c->theta), c->w / 2 - 3, CAR_STOPPED);
