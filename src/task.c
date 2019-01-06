@@ -73,6 +73,7 @@ int task_create(void *init, void *run, void *term, void *arg, rt_task_par_t *par
 	// (*init)(arg);
 
 	/*setting up the parameters of the task from input*/
+	par->isActive	=	1;
 	par->dmiss 		=	0;
 	par->killMyself	=	0;
 	par->init 		= 	init;
@@ -110,5 +111,5 @@ int task_create(void *init, void *run, void *term, void *arg, rt_task_par_t *par
 void task_terminate(rt_task_par_t *par){
 	par->killMyself = 1;	/* tells the thread to suicide */
 	pthread_join(par->tid, NULL);
-	par->period = 0;		// degrading period
+	par->isActive = 0;
 }

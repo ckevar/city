@@ -51,7 +51,7 @@ int main(int argc, char const *argv[])
 			/** If N key is pressed a new car will be created only if MAX is not reached **/
 			if (scan == KEY_N && carCounter < MAX_CARS) {
 				readyCar = 0;
-				while(carsPrms[readyCar].period) readyCar++;
+				while(carsPrms[readyCar].isActive) readyCar++;
 				task_create(initVehicle, moveVehicle, termVehicle, &cars[readyCar], &carsPrms[readyCar], 40, 40, 2);
 				carCounter++;
 			}

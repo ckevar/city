@@ -10,7 +10,7 @@ int ShouldISuicide;
 /*Structure that defines the parameters of a real time task*/
 typedef struct {
 	pthread_t tid;				/* task id*/
-	// long wcet;					/* in microseconds */
+	int isActive;				/* whether the task is active or not */
 	int period;					/* in milliseconds */
 	int deadline;				/* relative (ms) */
 	int priority;				/* in [0,99] */

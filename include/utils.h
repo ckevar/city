@@ -48,7 +48,7 @@
 #define	WHITE	15
 
 /** MAX CARS ALLOWED **/
-#define MAX_CARS	20
+#define MAX_CARS	10
 
 /** CAR LIGHTS **/
 #define CAR_RUNNING	14
