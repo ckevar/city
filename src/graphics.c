@@ -99,7 +99,6 @@ void initStatDisplay(){
 	const char *desc	= "WELCOME IN CITY, A SIMULATION PROGRAM THAT AIMS TO SIMULATE A URBAN AREA.";
 	const char *insert	= "TO ADD A NEW CAR, PRESS 'n'.";
 	const char *delete	= "TO DELETE AN EXISTING CAR, PRESS 'd'.";
-	const char *rescue	= "TO TOW, PRESS 't'.";
 	const char *nCars1	= "NUMBER OF";
 	const char *nCars2	= "CARS";
 	const char *nCars3	= "IN THE CITY:";
