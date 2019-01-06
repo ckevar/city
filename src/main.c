@@ -71,7 +71,7 @@ int main(int argc, char const *argv[])
 
 	/* Terminates all threads */
 	for(i = 0; i < MAX_CARS; i++) {
-		if (!carsPrms[i].killMyself)
+		if (carsPrms[i].isActive)
 			task_terminate(&carsPrms[i]);
 	}
 
