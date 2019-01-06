@@ -86,13 +86,14 @@ void *moveVehicle(void *myV) {
 	double xd;									// Taking as double the current position
 	double yd;									// this one too
 	int tmpPosition[8];
+	char stoppedByTL;
 
 	cpyPnts(c->point, tmpPosition, 8);			// copying temporal position 
 
 	/** Reading Sensors **/
 	getRangefinder(&c->ds, RANGEFINDER_3_BEAMS);
 	getFrame(c);
-	pathPlanner(c);
+	stoppedByTL = pathPlanner(c);
 
 	xd = c->xr;
 	yd = c->yr;
@@ -108,6 +109,7 @@ void *moveVehicle(void *myV) {
 	
 	if (cmpPnts(tmpPosition, c->point, 8)) { 	// If the points are the same as the previous one, 
 												// the car wont be reploted.
+		c->isStopped = 0;
 		/** DELETING PREVIOUS POSITION **/
 		pthread_mutex_lock(&screen_lock);           	// Locking shared resource screen
 		polygon(screen, 4, tmpPosition, STREET_COL); 	// Delete previous position
@@ -118,11 +120,11 @@ void *moveVehicle(void *myV) {
 		pthread_mutex_unlock(&screen_lock);
 	} else {
 		/** RED LIGHTS display at the back of the car when it's stopped **/
+		c->isStopped = !stoppedByTL;
 		pthread_mutex_lock(&screen_lock);
 		circlefill(screen, c->xr - c->l/4 * cos(c->theta), c->yr - c->l/4 * sin(c->theta), c->w / 2 - 3, CAR_STOPPED);
 		pthread_mutex_unlock(&screen_lock);	
 	}
-
 	c->v_1 = c->vel;
 }
  
@@ -212,6 +214,7 @@ void initCarFeatures(vehicle_t *c) {
 	c->isExecuted = 0;			// steering execution event
 	c->turn = DONT_STEER;		// starts as no init
 	c->planner.angleRes = M_PI / 32;	// angle resolution for steering
+	c->isStopped = 0;
 }
 
 char generateRandomPositionAroundCity(vehicle_t *c) {
@@ -311,4 +314,5 @@ void *termVehicle(void* c){
 	pthread_mutex_lock(&screen_lock);
 	polygon(screen, 4, car->point, STREET_COL);
 	pthread_mutex_unlock(&screen_lock);
+	car->isStopped = 0;
 }

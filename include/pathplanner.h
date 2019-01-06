@@ -10,6 +10,6 @@ void steerLR(vehicle_t *c, imfeatures_t *ft);
 void chooseSteering(vehicle_t *c, imfeatures_t *ft);
 void genEllipticalTrajectory(vehicle_t *c, imfeatures_t *ft);
 void steer(vehicle_t *c, imfeatures_t *ft);
-void pathPlanner(vehicle_t *c);
+char pathPlanner(vehicle_t *c);
 
 #endif

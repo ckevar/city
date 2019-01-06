@@ -1,4 +1,7 @@
 #include <allegro.h>
+#include <types.h>
+
+#include "task.h"
 
 #ifndef UTILS_H
 #define UTILS_H
@@ -45,7 +48,7 @@
 #define	WHITE	15
 
 /** MAX CARS ALLOWED **/
-#define MAX_CARS	10
+#define MAX_CARS	20
 
 /** CAR LIGHTS **/
 #define CAR_RUNNING	14
@@ -62,5 +65,7 @@ void cpyPnts(int *source, int *destination, const int N);
 
 /* compares int elements between A and B */
 char cmpPnts(int *A, int *B, const int N);
+
+void chooseCarDelete(int *r, vehicle_t *c, rt_task_par_t *p);
 
 #endif

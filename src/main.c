@@ -17,11 +17,14 @@ int main(int argc, char const *argv[])
 {
 	vehicle_t 		cars[MAX_CARS];
 	rt_task_par_t 	carsPrms[MAX_CARS];
+
 	char	scan;
 	char 	carCounter = 0;
 	char 	isPressed = 1;
-	int 	tl_matrix[N_BLOCKS_X*2 * N_BLOCKS_Y*2];
+
+	int		readyCar = 0;
 	int 	i;
+	int 	tl_matrix[N_BLOCKS_X*2 * N_BLOCKS_Y*2];
 
 	srand (time(NULL));
 	allegro_init();
@@ -47,25 +50,29 @@ int main(int argc, char const *argv[])
 
 			/** If N key is pressed a new car will be created only if MAX is not reached **/
 			if (scan == KEY_N && carCounter < MAX_CARS) {
-				task_create(initVehicle, moveVehicle, termVehicle, &cars[carCounter], &carsPrms[carCounter], 40, 40, 2);
+				readyCar = 0;
+				while(carsPrms[readyCar].period) readyCar++;
+				task_create(initVehicle, moveVehicle, termVehicle, &cars[readyCar], &carsPrms[readyCar], 40, 40, 2);
 				carCounter++;
-				drawNCars(carCounter);
 			}
 
-			/** if D key is pressed a car will be removed off simulation **/
+			/** if D key is pressed a still car or the last added will be removed off simulation **/
 			if (scan == KEY_D && carCounter > 0) {
-				task_terminate(&carsPrms[carCounter - 1]);
+				chooseCarDelete(&readyCar, cars, carsPrms);
+				task_terminate(&carsPrms[readyCar]);
 				carCounter--;
-				drawNCars(carCounter);
 			}
+
+			drawNCars(carCounter);	
 		}
 
 	} while(scan != KEY_ESC);
 	/***************************************/
 
 	/* Terminates all threads */
-	for(i = 0; i < carCounter; i++) {
-		task_terminate(&carsPrms[i]);
+	for(i = 0; i < MAX_CARS; i++) {
+		if (!carsPrms[i].killMyself)
+			task_terminate(&carsPrms[i]);
 	}
 
 	allegro_exit();

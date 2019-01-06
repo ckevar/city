@@ -52,7 +52,6 @@ void *periodic_task(void* arg) {
 			
 		wait_for_activation(prm);
 	}
-
 	if(prm->terminate != NULL)
 		prm->terminate(prm->arg);	/* termination function */
 }
@@ -111,4 +110,5 @@ int task_create(void *init, void *run, void *term, void *arg, rt_task_par_t *par
 void task_terminate(rt_task_par_t *par){
 	par->killMyself = 1;	/* tells the thread to suicide */
 	pthread_join(par->tid, NULL);
+	par->period = 0;		// degrading period
 }

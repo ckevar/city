@@ -190,28 +190,37 @@ void steer(vehicle_t *c, imfeatures_t *ft) {
 	else steerLR(c, ft); // If steering, left or right
 }
 
-void pathPlanner(vehicle_t *c) {
+char pathPlanner(vehicle_t *c) {
 	/* To plan the future path for the car
 	 */
 	imfeatures_t imf;
+	char stopppedByTL = 0;
+
 
 	/***** FRONT DISTANCE RESPONSE *****/
-	if (c->ds.dsts[MID_DST] < 10) 
+	if (c->ds.dsts[MID_DST] < 10) {
 		c->Vr = 0;	// Minimun Distance before hit wall from front
 		/***********************************/
+	}
 	else { 
 		c->Vr = V_REF;							// it needs to return going again
-
 		/****** TRAFFIC LIGHT REPONSE ******/
 		if (imf.TLcenter.N) {        		// No traffic lights detected
-			if (imf.TLminDistance < 9)
-				if ((imf.TLstatus == TL_RED) || (imf.TLstatus == TL_YELLOW))
+			// printf("before TLminDistance %f\n", c->Vr);
+			if (imf.TLminDistance < 9) {
+				if ((imf.TLstatus == TL_RED) || (imf.TLstatus == TL_YELLOW)) {
 					c->Vr = 0.0;
-
-			else if (imf.TLstatus == TL_GREEN)
-				c->Vr = V_REF;
+					stopppedByTL = 1;
+				}
+				else
+					c->Vr = V_REF;
+			}
+			// else if (imf.TLstatus == TL_GREEN)
+			// 	c->Vr = V_REF;
 		}
 		/************************************/
+		// printf("After TLminDistance %f\n", c->Vr);
+
 		
 		analyzeCameraFrame(c, &imf);	
 
@@ -231,5 +240,6 @@ void pathPlanner(vehicle_t *c) {
 			steer(c, &imf);					// steers
 		/***********************************/
 	}
+	return stopppedByTL;
 }
 

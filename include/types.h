@@ -88,6 +88,7 @@ typedef struct {
 	int 		w;			// Vehicle dimensions width
 	int			l;			// Vehicle dimensions length
 	int 		isExecuted;	// steering event
+	int 		isStopped;	//
 	double		m;			// Mass
 	double		b;			// Friction Coefficient
 	double 		u;			// Control Law
@@ -108,5 +109,11 @@ typedef struct {
 	steer_t 	turn;		// where to steer
 	planner_t	planner;	// Path planner
 } vehicle_t;
+
+typedef struct {
+	int 	*data;
+	int 	*tail;
+	int 	*size;
+} buff_t;
 
 #endif

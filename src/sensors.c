@@ -159,20 +159,26 @@ void  analyzeCameraFrame(vehicle_t *c, imfeatures_t *imft) {
 		}
 	}
 
+	// display(bwTL, c->id * 100, 620);
 	RosenfeldPfaltz(bwTL, &imft->TLcenter, 0);
 	fastHarrisRobertCornerDetection(&bwStreet);
 	imft->stCorner = bwStreet.ft;
-	// display(bwStreet.im, c->id * 100, 620);
 
 	/** TO BE WRAPPED UP **/
 	/** Read traffic light status **/
+	
+	imft->TLstatus = TL_GREEN;
 	for (i = 0; i < imft->TLcenter.N; i++) {
 		if (imft->TLcenter.y[i + 1] > (HRES / 2)) {		// always look in the right
 			if (imft->TLcenter.x[i + 1] > 5) {
 				if (imft->TLcenter.x[i + 1] < minim) {		// check for the closest traffic light
 					minim = imft->TLcenter.x[i + 1];
+					// circlefill(screen, c->id * 100 + imft->TLcenter.x[i + 1] - 5, 620 + imft->TLcenter.y[i + 1], 2, TL_GREEN);
+					// circlefill(screen, c->id * 100 + imft->TLcenter.x[i + 1] - 2, 620 + imft->TLcenter.y[i + 1], 2, TL_YELLOW);
+					// circlefill(screen, c->id * 100 + imft->TLcenter.x[i + 1], 620 + imft->TLcenter.y[i + 1], 2, TL_RED);
 					imft->TLminDistance = minim; 
-					imft->TLstatus = c->cam.image[(imft->TLcenter.x[i + 1] - 5) * HRES + imft->TLcenter.y[i + 1] - 2];
+					imft->TLstatus = c->cam.image[(imft->TLcenter.x[i + 1] - 5) * HRES + imft->TLcenter.y[i + 1]];
+					// printf("HOLA %d %d\n", imft->TLcenter.x[i + 1], imft->TLcenter.y[i + 1]);
 				}
 			}
 		}
