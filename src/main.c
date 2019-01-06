@@ -75,6 +75,8 @@ int main(int argc, char const *argv[])
 			task_terminate(&carsPrms[i]);
 	}
 
+	task_terminate(&tl_manager_par);
+
 	allegro_exit();
 
 	return 0;
