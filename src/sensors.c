@@ -27,9 +27,9 @@ void display(int *im, const int x0, const int y0) {
 	j = 0;
 
 	for (p = im; p < (im + VRES * HRES); ++p) {
-		if (*p != getpixel(screen, x0 + i, y0 + j)) {	// if the curren pixel is equal than the previous
+		if (*p != getpixel(screen, x0 + j, y0 + i)) {	// if the curren pixel is equal than the previous
 			pthread_mutex_lock(&screen_lock);			// it's not neccesary to redraw
-			putpixel(screen, x0 + i, y0 + j, *p);
+			putpixel(screen, x0 + j, y0 + i, *p);
 			pthread_mutex_unlock(&screen_lock);
 		}
 
@@ -63,7 +63,8 @@ void *getFrame(vehicle_t *c) {
 		for(j = 0; j < HRES; j++) {
 			x = (-VRES / 2 + i) * cost - (-HRES / 2 + j) * sint + x0; 
 			y = (-VRES / 2 + i) * sint + (-HRES / 2 + j) * cost + y0; 
-			if ((x < 0) || (y < 0)) 
+			
+			if ((x <= 0) || (y <= 0)) 
 				c->cam.image[i * HRES + j] = BLOCK_COL;
 			else 
 				c->cam.image[i * HRES + j] = getpixel(screen, x, y);
@@ -162,7 +163,7 @@ void  analyzeCameraFrame(vehicle_t *c, imfeatures_t *imft) {
 		}
 	}
 
-	// display(bwTL, c->id * 100, 620);
+	display(c->cam.image, W - HRES - 10, H - VRES - 100);
 	RosenfeldPfaltz(bwTL, &imft->TLcenter, 0);
 	fastHarrisRobertCornerDetection(&bwStreet);
 	imft->stCorner = bwStreet.ft;

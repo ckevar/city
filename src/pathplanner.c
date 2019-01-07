@@ -232,16 +232,19 @@ void check2turnAround(vehicle_t *c, imfeatures_t *imf){
 	if (c->cam.image[(imf->stCorner.x[0] + 5) * HRES + 				// check if the color between the corners is the street color
 		(imf->stCorner.y[0]/2 + imf->stCorner.y[1]/2)] == BLOCK_COL)
 	{	
-
-		c->planner.w0 = fabs(imf->stCorner.y[0] - imf->stCorner.y[1]) / 2	// compute x0 to generate a half circle trajectory
-						- imf->stCorner.y[1] + HRES / 2;	
-		c->planner.e.a = c->planner.w0; 								// radio
-		c->planner.alpha = M_PI / 2;									// the circle starts at 90 degress
-		c->planner.tmpX = c->xr;										// catching the current position
-		c->planner.tmpY = c->yr;
-		c->theta_old = c->theta;										// the current theta
-		c->turn = TURN_180;												// flaggin the type of steering
-		c->isTime2Steer = 1;											// enabling to execute the steering
+		c->planner.w0 = fabs(imf->stCorner.y[0] - imf->stCorner.y[1]);	// compute x0 to generate a half circle trajectory
+		printf("y[0] %d, y[1] %d\n", imf->stCorner.y[0], imf->stCorner.y[1]);
+		if (c->planner.w0 > (STREET_W - 5.0)) {								// 5 is a tolerance
+			c->planner.w0 /= 2.0;												// compute x0 to generate a half circle trajectory
+			c->planner.w0 -= (imf->stCorner.y[1] - HRES / 2);					// compute x0 to generate a half circle trajectory
+			c->planner.e.a = c->planner.w0; 								// radio
+			c->planner.alpha = M_PI / 2;									// the circle starts at 90 degress
+			c->planner.tmpX = c->xr;										// catching the current position
+			c->planner.tmpY = c->yr;
+			c->theta_old = c->theta;										// the current theta
+			c->turn = TURN_180;												// flaggin the type of steering
+			c->isTime2Steer = 1;											// enabling to execute the steering
+		}
 	}
 }
 
@@ -255,6 +258,9 @@ char pathPlanner(vehicle_t *c) {
 	/***** FRONT DISTANCE RESPONSE *****/
 	if (c->ds.dsts[MID_DST] < DST_FROM_FRONTOBSTACLE) {
 		c->Vr = 0;	// Brakes before hit front wall or front block
+		if (c->yr < STREET_W / 2 + 5) {
+			stopppedByTL = 2;
+		}
 		/***********************************/
 	} else { 
 		c->Vr = V_REF;							// it needs to return going again
@@ -293,6 +299,8 @@ char pathPlanner(vehicle_t *c) {
 			steer(c, &imf);					// steers
 		/***********************************/
 	}
+
+
 	return stopppedByTL;
 }
 

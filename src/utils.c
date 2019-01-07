@@ -28,10 +28,22 @@ void chooseCarDelete(int *r, vehicle_t *c, rt_task_par_t *p) {
 	for (i = 0; i < MAX_CARS; i++) {
 		if(p[i].isActive) {
 
-			if (c[i].isStopped) *r = i;
+			if (c[i].isStopped == 1) *r = i;
 
 			if (*r == -1) *r = i;
 		}
 	}
 
 }
+
+void checkWhosOut(int *r, vehicle_t *c, rt_task_par_t *p) {
+	*r = -1;
+	int i;
+	for (i = 0; i < MAX_CARS; i++) {
+		if(p[i].isActive && (c[i].isStopped == 2)) {
+			*r = i;
+		}
+	}
+}
+
+

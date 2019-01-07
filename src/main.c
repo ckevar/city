@@ -66,6 +66,13 @@ int main(int argc, char const *argv[])
 			drawNCars(carCounter);	
 		}
 
+		checkWhosOut(&readyCar, cars, carsPrms);
+		if (readyCar > -1) {
+			task_terminate(&carsPrms[readyCar]);
+			carCounter--;
+			drawNCars(carCounter);	
+		}
+
 	} while(scan != KEY_ESC);
 	/***************************************/
 

@@ -98,7 +98,12 @@ void *moveVehicle(void *myV) {
 	/** Reading Sensors **/
 	getRangefinder(&c->ds, RANGEFINDER_3_BEAMS);
 	getFrame(c);
-	stoppedByTL = pathPlanner(c);
+	
+	if (c->isStopped == 2)
+		c->Vr = 10;
+	else 
+		stoppedByTL = pathPlanner(c);
+
 
 	xd = c->xr;
 	yd = c->yr;
@@ -125,7 +130,8 @@ void *moveVehicle(void *myV) {
 		pthread_mutex_unlock(&screen_lock);
 	} else {
 		/** RED LIGHTS display at the back of the car when it's stopped **/
-		c->isStopped = !stoppedByTL;
+		if (stoppedByTL == 0) c->isStopped = 1;
+		else if (stoppedByTL == 2) c->isStopped = 2;
 		pthread_mutex_lock(&screen_lock);
 		circlefill(screen, c->xr - c->l/4 * cos(c->theta), c->yr - c->l/4 * sin(c->theta), c->w / 2 - 3, CAR_STOPPED);
 		pthread_mutex_unlock(&screen_lock);	
@@ -243,7 +249,7 @@ char generateRandomPositionAroundCity(vehicle_t *c) {
 			/* Bottom Side of screen */
 			theta = 1;
 			nb = (H - STREET_W) / blkLen;		// Number of blocks along y axis
-			c->theta += M_PI;					// 270 	deg
+			c->theta = 3 * M_PI / 2;					// 270 	deg
 			c->yr += nb * blkLen - STREET_W;
 			/*					|________ where counting from bottom
 			 */

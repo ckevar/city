@@ -68,4 +68,6 @@ char cmpPnts(int *A, int *B, const int N);
 
 void chooseCarDelete(int *r, vehicle_t *c, rt_task_par_t *p);
 
+void checkWhosOut(int *r, vehicle_t *c, rt_task_par_t *p);
+
 #endif
