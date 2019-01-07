@@ -12,13 +12,12 @@
 #define MAX_MASS_CAR        2000
 #define MIN_FRICTION_CAR    40
 #define MAX_FRICTION_CAR    60
- 
+
 // CONTROLLER PARAMETERS
 #define	PID_KP	30000.0
 #define	PID_KI	2000.0
 #define	V_REF	20.0
 
- 
 /***** Real-Time Task *****/
 void *vehicle(void *myVehi);
 /* drives the car, do the planning

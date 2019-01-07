@@ -32,8 +32,9 @@ typedef struct {
 	double 		w0;
 	double		alpha;		// angle of the elliptical region (for steering)
 	double		angleRes;	// angle Resolution
-	int tmpX;
-	int tmpY;
+	double tmpX;
+	double tmpY;
+	double dx;
 } planner_t;				// Path planner Type
 
 
@@ -87,7 +88,7 @@ typedef struct {
 	int			yr; 		// real (or granted) position
 	int 		w;			// Vehicle dimensions width
 	int			l;			// Vehicle dimensions length
-	int 		isExecuted;	// steering event
+	int 		isTime2Steer;// steering event
 	int 		isStopped;	//
 	double		m;			// Mass
 	double		b;			// Friction Coefficient

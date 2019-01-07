@@ -39,14 +39,11 @@ void initRandomMap(int *tl_matrix){
 	int random_factor;
 	int a, b;
 
-	srand (time(NULL));
-	
 
 	for(i = 0; i < N_BLOCKS_X; i++){
 		for(j = 0; j < N_BLOCKS_Y; j++){
 
-			random_factor = rand() % 100;
-
+			random_factor = rand() % 40;
 			if(random_factor >= 50 || (i == N_BLOCKS_X - 1) || (j == N_BLOCKS_Y - 1)) {
 				a = 1; b = 1;
 			}

@@ -63,7 +63,10 @@ void *getFrame(vehicle_t *c) {
 		for(j = 0; j < HRES; j++) {
 			x = (-VRES / 2 + i) * cost - (-HRES / 2 + j) * sint + x0; 
 			y = (-VRES / 2 + i) * sint + (-HRES / 2 + j) * cost + y0; 
-			c->cam.image[i * HRES + j] = getpixel(screen, x, y);
+			if ((x < 0) || (y < 0)) 
+				c->cam.image[i * HRES + j] = BLOCK_COL;
+			else 
+				c->cam.image[i * HRES + j] = getpixel(screen, x, y);
 		}
 	}
 }
@@ -173,12 +176,8 @@ void  analyzeCameraFrame(vehicle_t *c, imfeatures_t *imft) {
 			if (imft->TLcenter.x[i + 1] > 5) {
 				if (imft->TLcenter.x[i + 1] < minim) {		// check for the closest traffic light
 					minim = imft->TLcenter.x[i + 1];
-					// circlefill(screen, c->id * 100 + imft->TLcenter.x[i + 1] - 5, 620 + imft->TLcenter.y[i + 1], 2, TL_GREEN);
-					// circlefill(screen, c->id * 100 + imft->TLcenter.x[i + 1] - 2, 620 + imft->TLcenter.y[i + 1], 2, TL_YELLOW);
-					// circlefill(screen, c->id * 100 + imft->TLcenter.x[i + 1], 620 + imft->TLcenter.y[i + 1], 2, TL_RED);
 					imft->TLminDistance = minim; 
 					imft->TLstatus = c->cam.image[(imft->TLcenter.x[i + 1] - 5) * HRES + imft->TLcenter.y[i + 1]];
-					// printf("HOLA %d %d\n", imft->TLcenter.x[i + 1], imft->TLcenter.y[i + 1]);
 				}
 			}
 		}

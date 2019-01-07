@@ -59,6 +59,11 @@ void pidVelController(vehicle_t *c) {
 	c->e = c->Vr - c->v_1;						// Computes the error
 	c->Ie += c->e;								// Integrates the error
 	c->u = c->K.Kp * c->e + c->K.Ki * c->Ie;	// computes the control output
+	// printf("before c->u %f\n", c->u);
+	// if (c->u > MAX_KFORCE) c->u = MAX_KFORCE;		// saturation
+	// if (c->u < -MAX_KFORCE) c->u = -MAX_KFORCE;		// saturation
+	// printf("after c->u %f\n", c->u);
+
 }
 
 void dynamicCruiseModel(vehicle_t *c, double *xd, double *yd) {
@@ -211,10 +216,10 @@ void initCarFeatures(vehicle_t *c) {
 	c->T  = 0.033;				// Period
 	c->Ie = 0;					// Integrating the error
 	c->v_1 = 0;					// Initializing previous speed
-	c->isExecuted = 0;			// steering execution event
+	c->isTime2Steer = 0;			// steering execution event
 	c->turn = DONT_STEER;		// starts as no init
 	c->planner.angleRes = M_PI / 32;	// angle resolution for steering
-	c->isStopped = 0;
+	c->isStopped = 0;			// is the car still
 }
 
 char generateRandomPositionAroundCity(vehicle_t *c) {
