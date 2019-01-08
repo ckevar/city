@@ -258,7 +258,7 @@ char pathPlanner(vehicle_t *c) {
 	/***** FRONT DISTANCE RESPONSE *****/
 	if (c->ds.dsts[MID_DST] < DST_FROM_FRONTOBSTACLE) {
 		c->Vr = 0;	// Brakes before hit front wall or front block
-		if (c->yr < STREET_W / 2 + 5) {
+		if ((c->yr < STREET_W / 2 + 5) || (c->xr < STREET_W / 2 + 5)) {
 			stopppedByTL = 2;
 		}
 		/***********************************/
