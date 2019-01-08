@@ -157,8 +157,8 @@ void drawNDmiss(){
 	char s[4];
 	int color;
 
-	rectfill(screen, (N_BLOCKS_X*BLOCK_W + (N_BLOCKS_X+ 1)*STREET_W) + 50, 157,
-		(N_BLOCKS_X*BLOCK_W + (N_BLOCKS_X+ 1)*STREET_W) + 70, 170, STAT_BG);
+	rectfill(screen, (N_BLOCKS_X*BLOCK_W + (N_BLOCKS_X+ 1)*STREET_W) + 40, 157,
+		(N_BLOCKS_X*BLOCK_W + (N_BLOCKS_X+ 1)*STREET_W) + 80, 170, STAT_BG);
 
 	/* Critical section on the shared var deadline_misses */
 	pthread_mutex_lock(&dmiss_lock);
