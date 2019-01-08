@@ -80,7 +80,7 @@ void drawNCars(int x){
 	if(x <= (MAX_CARS/3))
 		color = INFO_GREEN;
 	else if(x <= (2*MAX_CARS/3))
-		color = WHITE;
+		color = INFO_YEL;
 	else
 		color = INFO_RED;
 
@@ -169,7 +169,7 @@ void drawNDmiss(){
 	if(deadline_misses <= 10)
 		color = INFO_GREEN;
 	else if(deadline_misses <= 20)
-		color = WHITE;
+		color = INFO_YEL;
 	else
 		color = INFO_RED;
 

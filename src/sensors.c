@@ -132,7 +132,10 @@ void getRangefinder(dstsens_t *dst, const int beam) {
 char isStreetColor(const int tmp) {
 	return 	(tmp == TL_COL) || (tmp == TL_GREEN) ||
 			(tmp == TL_YELLOW) 	|| (tmp == TL_RED) 	||
-			(tmp == BLOCK_COL) || (tmp == BLACK);  
+			(tmp == BLOCK_COL) || (tmp == BLACK) || 
+			(tmp == STAT_BG) || (tmp == INFO_COL) ||
+			(tmp == INFO_GREEN) || (tmp == INFO_RED) ||
+			(tmp == INFO_YEL); 
 }
 
 void  analyzeCameraFrame(vehicle_t *c, imfeatures_t *imft) {
@@ -163,10 +166,12 @@ void  analyzeCameraFrame(vehicle_t *c, imfeatures_t *imft) {
 		}
 	}
 
-	display(c->cam.image, W - HRES - 10, H - VRES - 100);
+	// display(c->cam.image, W - HRES - 10, H - VRES - 100);
 	RosenfeldPfaltz(bwTL, &imft->TLcenter, 0);
+	// display(bwTL, W - HRES - 10, H - VRES - 100);
 	fastHarrisRobertCornerDetection(&bwStreet);
 	imft->stCorner = bwStreet.ft;
+	// display(bwStreet.im, W - HRES - 10, H - VRES - 100);
 
 	/** TO BE WRAPPED UP **/
 	/** Read traffic light status **/

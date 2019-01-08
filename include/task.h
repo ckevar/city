@@ -3,10 +3,6 @@
 #ifndef TASK_H
 #define TASK_H
 
-/** THREAD ENDERS **/
-int ShouldISuicide;
-
-
 /*Structure that defines the parameters of a real time task*/
 typedef struct {
 	pthread_t tid;				/* task id*/
