@@ -154,7 +154,7 @@ void initialize_graphics(int *tl_matrix)
 /* Prints the number of deadline-misses in the interface */
 void drawNDmiss(){
 
-	char s[4];
+	char s[6];
 	int color;
 
 	rectfill(screen, (N_BLOCKS_X*BLOCK_W + (N_BLOCKS_X+ 1)*STREET_W) + 40, 157,
@@ -173,7 +173,7 @@ void drawNDmiss(){
 	else
 		color = INFO_RED;
 
-	snprintf(s, sizeof(int), "%d", deadline_misses);
+	snprintf(s, 6, "%d", deadline_misses);
 	textout_centre_ex(screen, font, s, (N_BLOCKS_X*BLOCK_W + (N_BLOCKS_X+ 1)*STREET_W) + 60,
 		160, color, -1);
 
