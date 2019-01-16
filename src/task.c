@@ -46,7 +46,7 @@ void *periodic_task(void* arg) {
 		prm->run(prm->arg);			// Runs
 
 		if(deadline_miss(prm)){
-			fprintf(stderr, "[WARNING:] Deadline Miss\n");
+			//fprintf(stderr, "[WARNING:] Deadline Miss\n");
 			drawNDmiss();
 		}
 			
