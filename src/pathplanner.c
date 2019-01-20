@@ -287,9 +287,12 @@ char pathPlanner(vehicle_t *c) {
 		/******** CROSSROAD RESPONSE ********/
 		if (!c->isTime2Steer) {
 			keepCertainDistanceFromBlock(c, DST_FROM_LEFT_SIDEBLOCK);	// keep safe distance from blocks
-			if (imf.stCorner.N == 2) {
-				check2turnAround(c, &imf);
-				
+			if (imf.stCorner.N){
+				if(c->Vr > 20)	c->Vr = c->Vr-10;
+				//printf("%f\n", c->vel);
+				if(imf.stCorner.N== 2) {
+					check2turnAround(c, &imf);
+				}
 			}
 			if ((imf.stCorner.x[0] < DST_TO_STEER) && (imf.stCorner.N)) {
 				chooseSteering(c, &imf);	// the vehicle will go left, right or straigh

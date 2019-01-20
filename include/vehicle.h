@@ -19,7 +19,7 @@
 #define	V_REF	20.0
 
 // VELOCITY BOUNDARIES
-#define MAX_VEL_CAR	25
+#define MAX_VEL_CAR	40
 #define MIN_VEL_CAR	0
 
 /***** Real-Time Task *****/

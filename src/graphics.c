@@ -162,7 +162,7 @@ void initStatDisplay(){
 		240, INFO_COL, -1);
 
 	drawNCars(0);
-	drawGVel(0);
+	drawGVel(20);
 
 	snprintf(s, sizeof(int), "%d", dmiss);
 	textout_centre_ex(screen, font, s, (N_BLOCKS_X*BLOCK_W + (N_BLOCKS_X+ 1)*STREET_W) + 60,
