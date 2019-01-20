@@ -4,6 +4,7 @@
 
 #include "utils.h"
 #include "tlgraphics.h"
+#include "vehicle.h"
 
 pthread_mutex_t dmiss_lock;
 int deadline_misses;
@@ -90,18 +91,43 @@ void drawNCars(int x){
 		50, color, -1);
 }
 
+/* Prints the specified reference velocity of existing cars in the city */
+void drawGVel(double vel) {
+	char s[2];
+	int color;
+	snprintf(s, sizeof(int), "%d", (int)vel);
+
+	if(vel <= (MAX_VEL_CAR / 3)) 
+		color = INFO_GREEN;
+	else if (vel <= (2 * MAX_CARS) / 3)
+		color = INFO_YEL;
+	else
+		color = INFO_RED;
+
+	rectfill(screen, (N_BLOCKS_X*BLOCK_W + (N_BLOCKS_X+ 1)*STREET_W) + 50, 248,
+		(N_BLOCKS_X*BLOCK_W + (N_BLOCKS_X+ 1)*STREET_W) + 70, 260, STAT_BG);
+	textout_centre_ex(screen, font, s, (N_BLOCKS_X*BLOCK_W + (N_BLOCKS_X+ 1)*STREET_W) + 60,
+		250, color, -1);
+
+}
+
+
 /* Sets up the display and interface*/
 void initStatDisplay(){
 	// char* desc, insert, delete;
 	const char *desc	= "WELCOME IN CITY, A SIMULATION PROGRAM THAT AIMS TO SIMULATE A URBAN AREA.";
 	const char *insert	= "TO ADD A NEW CAR, PRESS 'n'.";
 	const char *delete	= "TO DELETE AN EXISTING CAR, PRESS 'd'.";
+	const char *incVel 	= "TO INCREASE VELOCITY, PRESS UP KEY";
+	const char *decVel 	= "TO DECREASE VELOCITY, PRESS DOWN KEY";
 	const char *nCars1	= "NUMBER OF";
 	const char *nCars2	= "CARS";
 	const char *nCars3	= "IN THE CITY:";
 	const char *nDmiss1	= "NUMBER OF";
 	const char *nDmiss2 = "DEADLINE";
 	const char *nDmiss3	= "MISSES:";
+	const char *nGVel1	= "GLOBAL";
+	const char *nGVel2	= "VELOCITY";
 	int dmiss = 0;
 	char s[4];
 
@@ -114,6 +140,8 @@ void initStatDisplay(){
 		(N_BLOCKS_Y*BLOCK_W + (N_BLOCKS_Y+1)*STREET_W+15), INFO_COL, -1);
 	textout_ex(screen, font, insert, 20, (N_BLOCKS_Y*BLOCK_W + (N_BLOCKS_Y+1)*STREET_W+35), INFO_GREEN, -1);
 	textout_ex(screen, font, delete, 20, (N_BLOCKS_Y*BLOCK_W + (N_BLOCKS_Y+1)*STREET_W+45), INFO_RED, -1);
+	textout_ex(screen, font, incVel, 20, (N_BLOCKS_Y*BLOCK_W + (N_BLOCKS_Y+1)*STREET_W+55), INFO_RED-1, -1);
+	textout_ex(screen, font, decVel, 20, (N_BLOCKS_Y*BLOCK_W + (N_BLOCKS_Y+1)*STREET_W+65), INFO_RED-2, -1);
 
 	textout_centre_ex(screen, font, nCars1, (N_BLOCKS_X*BLOCK_W + (N_BLOCKS_X+ 1)*STREET_W) + 60,
 		20, INFO_COL, -1);
@@ -128,7 +156,14 @@ void initStatDisplay(){
 	textout_centre_ex(screen, font, nDmiss3, (N_BLOCKS_X*BLOCK_W + (N_BLOCKS_X+ 1)*STREET_W) + 60,
 		150, INFO_COL, -1);
 
+	textout_centre_ex(screen, font, nGVel1, (N_BLOCKS_X*BLOCK_W + (N_BLOCKS_X+ 1)*STREET_W) + 60,
+		230, INFO_COL, -1);
+	textout_centre_ex(screen, font, nGVel2, (N_BLOCKS_X*BLOCK_W + (N_BLOCKS_X+ 1)*STREET_W) + 60,
+		240, INFO_COL, -1);
+
 	drawNCars(0);
+	drawGVel(0);
+
 	snprintf(s, sizeof(int), "%d", dmiss);
 	textout_centre_ex(screen, font, s, (N_BLOCKS_X*BLOCK_W + (N_BLOCKS_X+ 1)*STREET_W) + 60,
 		160, INFO_GREEN, -1);

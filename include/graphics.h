@@ -10,4 +10,7 @@ void drawNCars(int x);
 /* Prints the number of deadline-misses in the interface */
 void drawNDmiss();
 
+/* Prints the specified reference velocity of existing cars in the city */
+void drawGVel(double vel);
+
 #endif

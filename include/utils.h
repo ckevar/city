@@ -2,6 +2,7 @@
 #include <types.h>
 
 #include "task.h"
+#include "tlmanager.h"
 
 #ifndef UTILS_H
 #define UTILS_H
@@ -70,5 +71,9 @@ char cmpPnts(int *A, int *B, const int N);
 void chooseCarDelete(int *r, vehicle_t *c, rt_task_par_t *p);
 
 void checkWhosOut(int *r, vehicle_t *c, rt_task_par_t *p);
+
+void task_createTrafficLight(tl_manager_arg *man_arg, rt_task_par_t *tl_manager_par, int period, int deadline, int prioriti);
+
+void task_createVehicle(vehicle_t *cars, rt_task_par_t *carsPrms, int period, int deadline, int prioriti);
 
 #endif

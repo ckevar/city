@@ -18,6 +18,10 @@
 #define	PID_KI	2000.0
 #define	V_REF	20.0
 
+// VELOCITY BOUNDARIES
+#define MAX_VEL_CAR	25
+#define MIN_VEL_CAR	0
+
 /***** Real-Time Task *****/
 void *vehicle(void *myVehi);
 /* drives the car, do the planning

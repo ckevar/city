@@ -6,6 +6,8 @@
 #include "vehicle.h"
 
  
+extern double Vgr;
+
 void keepCertainDistanceFromBlock(vehicle_t *c, const int safeDistance) {
 	if (c->ds.dsts[RIGHT_DST] > safeDistance) {
 		if (c->ds.dsts[RIGHT_DST] < SMAX) {
@@ -233,7 +235,7 @@ void check2turnAround(vehicle_t *c, imfeatures_t *imf){
 		(imf->stCorner.y[0]/2 + imf->stCorner.y[1]/2)] == BLOCK_COL)
 	{	
 		c->planner.w0 = fabs(imf->stCorner.y[0] - imf->stCorner.y[1]);	// compute x0 to generate a half circle trajectory
-		printf("y[0] %d, y[1] %d\n", imf->stCorner.y[0], imf->stCorner.y[1]);
+		// printf("y[0] %d, y[1] %d\n", imf->stCorner.y[0], imf->stCorner.y[1]);
 		if (c->planner.w0 > (STREET_W - 5.0)) {								// 5 is a tolerance
 			c->planner.w0 /= 2.0;												// compute x0 to generate a half circle trajectory
 			c->planner.w0 -= (imf->stCorner.y[1] - HRES / 2);					// compute x0 to generate a half circle trajectory
@@ -263,7 +265,7 @@ char pathPlanner(vehicle_t *c) {
 		}
 		/***********************************/
 	} else { 
-		c->Vr = V_REF;							// it needs to return going again
+		c->Vr = Vgr;							// it needs to return going again
 	
 		analyzeCameraFrame(c, &imf);			// analyzes the current frame captured
 
@@ -277,7 +279,7 @@ char pathPlanner(vehicle_t *c) {
 				}
 
 				else
-					c->Vr = V_REF;
+					c->Vr = Vgr;
 			}
 		}
 		/************************************/
