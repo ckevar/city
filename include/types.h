@@ -70,15 +70,9 @@ typedef struct
 	unsigned 	image[VRES * HRES];	// image
 } cam_t;
 
-typedef struct 
-{
-	
-} gps_t;
-
 typedef struct {
 	double Kp;		// Proportional Gain
 	double Ki;		// Integral Gain
-	double Kd;		// Derivative Gain
 } pidk_t;
 
 typedef struct {
@@ -105,7 +99,6 @@ typedef struct {
 	int 		point[8];	// Corners of the vehicle to be draw
 	dstsens_t	ds;			// distance sensor mounted on the vehicle
 	cam_t 		cam;		// camera mounted on the vehicle
-	gps_t 		gps;		// gps mounted on the vehicle
 	pidk_t		K;			// cruice controller 
 	steer_t 	turn;		// where to steer
 	planner_t	planner;	// Path planner
